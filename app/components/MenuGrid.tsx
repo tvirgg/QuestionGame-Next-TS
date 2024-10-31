@@ -1,25 +1,29 @@
-
 "use client";
 import React, { useState } from 'react';
-import { FaRegQuestionCircle, FaChartBar, FaUtensils, FaGift, FaCreditCard, FaHandsHelping, FaAddressBook, FaTrophy } from 'react-icons/fa';
-import { FaUserShield } from 'react-icons/fa';
+import { FaUserShield } from 'react-icons/fa'; // Сохраняем импорт FaUserShield
 import Modal from './Modal';
 import LotteryForm from './LotteryForm';
 import PlayerCountSelect from './PlayerCountSelect';
 import PaymentOptions from './PaymentOptions';
 import CardInputForm from './CardInputForm';
 
-const menuItems = [
-        { name: 'Панель администратора', icon: FaUserShield, href: '/admin' },
-    
-    { name: 'Правила игры', icon: FaRegQuestionCircle, href: '/rules' },
-    { name: 'Результаты игры', icon: FaTrophy, href: '/results' },
-    { name: 'Рейтинг команд', icon: FaChartBar, href: '/rating' },
-    { name: 'Меню ресторана', icon: FaUtensils, href: '/menu' },
-    { name: 'Лотерея', icon: FaGift, action: 'openLottery' },
-    { name: 'Оплата', icon: FaCreditCard, href: '/payment' },
-    { name: 'Хелп', icon: FaHandsHelping, href: '/help' },
-    { name: 'Наши контакты', icon: FaAddressBook, href: '/contacts' },
+type MenuItem = {
+    name: string;
+    icon: React.ComponentType<{ className?: string }> | string; // Иконка может быть компонентом или строкой
+    href?: string;
+    action?: string;
+};
+
+const menuItems: MenuItem[] = [
+    // { name: 'Панель администратора', icon: FaUserShield, href: '/admin' },
+    { name: 'Правила игры', icon: 'Info.svg', href: '/rules' }, // Используем Info.svg для "Правила игры"
+    { name: 'Результаты игры', icon: 'Game_results.svg', href: '/results' },
+    { name: 'Рейтинг команд', icon: 'Team_rating.svg', href: '/rating' },
+    { name: 'Меню ресторана', icon: 'Food_menu.svg', href: '/menu' },
+    { name: 'Лотерея', icon: 'Lotery.svg', action: 'openLottery' },
+    { name: 'Оплата', icon: 'Payment.svg', href: '/payment' },
+    { name: 'Хелп', icon: 'Help.svg', href: '/help' },
+    { name: 'Наши контакты', icon: 'Contacts.svg', href: '/contacts' },
 ];
 
 const MenuGrid: React.FC = () => {
@@ -38,7 +42,7 @@ const MenuGrid: React.FC = () => {
         setLotteryData({});
     };
 
-    const handleMenuClick = (item: any) => {
+    const handleMenuClick = (item: MenuItem) => {
         if (item.action === 'openLottery') {
             setIsLotteryOpen(true);
         } else if (item.href) {
@@ -48,15 +52,23 @@ const MenuGrid: React.FC = () => {
 
     return (
         <>
-            <div className="menu grid grid-cols-3 gap-4 py-5">
+            <div className="menu grid grid-cols-3 gap-4 pl-12 pt-12">
                 {menuItems.map((item) => (
                     <div
                         key={item.name}
-                        className="menu-item flex flex-col items-center text-white text-lg transition-transform duration-200 hover:scale-105 cursor-pointer"
+                        className="menu-item flex flex-col text-white text-lg transition-transform duration-200 hover:scale-105 cursor-pointer mb-[64px]"
                         onClick={() => handleMenuClick(item)}
                     >
-                        <item.icon className="icon text-[#f4c542] text-3xl mb-2" />
-                        <span>{item.name}</span>
+                        {typeof item.icon === 'string' ? (
+                            <img
+                                src={`/${item.icon}`}
+                                alt={item.name}
+                                className="icon text-[#f4c542] text-3xl mb-2 w-[80px] h-[80px]" // Настройте размеры по необходимости
+                            />
+                        ) : (
+                            <item.icon className="icon text-[#f4c542] text-3xl mb-2 w-12 h-12" />
+                        )}
+                        <span className='text-[48px] font-bold mt-[30px]'>{item.name}</span>
                     </div>
                 ))}
             </div>
