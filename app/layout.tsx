@@ -11,6 +11,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Tablet",
   description: "Created by Gerus",
+  viewport: "width=device-width, initial-scale=1.0",
 };
 
 export default function RootLayout({
