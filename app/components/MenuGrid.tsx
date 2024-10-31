@@ -15,7 +15,6 @@ type MenuItem = {
 };
 
 const menuItems: MenuItem[] = [
-    // { name: 'Панель администратора', icon: FaUserShield, href: '/admin' },
     { name: 'Правила игры', icon: 'Info.svg', href: '/rules' }, // Используем Info.svg для "Правила игры"
     { name: 'Результаты игры', icon: 'Game_results.svg', href: '/results' },
     { name: 'Рейтинг команд', icon: 'Team_rating.svg', href: '/rating' },
@@ -24,6 +23,7 @@ const menuItems: MenuItem[] = [
     { name: 'Оплата', icon: 'Payment.svg', href: '/payment' },
     { name: 'Хелп', icon: 'Help.svg', href: '/help' },
     { name: 'Наши контакты', icon: 'Contacts.svg', href: '/contacts' },
+    { name: 'Админ ', icon: FaUserShield, href: '/admin' },
 ];
 
 const MenuGrid: React.FC = () => {

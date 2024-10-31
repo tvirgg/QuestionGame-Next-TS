@@ -35,7 +35,7 @@ const AdminMain: React.FC = () => {
 
     return (
         <div className="w-screen h-screen bg-[#14213D] text-white flex flex-col items-center p-4">
-            <h1 className="text-4xl font-bold mt-8 mb-6 text-center">Административный интерфейс</h1>
+            <h1 className="text-4xl font-bold mt-8 mb-6 text-center">Интерфейс Администратора</h1>
             <div className="tabs flex space-x-4 mb-6">
                 {['Создание игры', 'Создание места проведения', 'Команды', 'Роли', 'Подсчёт очков', 'Оплаты', 'Лотерея'].map((tab) => (
                     <button
