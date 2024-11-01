@@ -9,10 +9,14 @@ const ReturnButton: React.FC = () => {
 
     return (
         <button
-            className="flex justify-center items-center w-[90px] h-[90px] bg-[#2e3a50] rounded-full cursor-pointer hover:bg-[#1b2a49]  border border-[#f4c542] transition-colors duration-200"
-            onClick={() => router.push('/')}
+            className="flex justify-center items-center w-[90px] h-[90px] cursor-pointer transition-colors duration-200"
+            onClick={() => router.push('/hello')}
         >
-            <FaHome className="text-[#CC9F33] text-[60px]" />
+                <img
+                        src="/House.svg"
+                        alt="House icon"
+                        className="h-12 w-12 cursor-pointer w-[100px] h-[100px]"
+                    />
         </button>
     );
 };
