@@ -2,11 +2,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 
-interface HelloPageProps {
-    tableNumber: number;
-}
 
-const HelloPage: React.FC<HelloPageProps> = ({ tableNumber }) => {
+const HelloPage: React.FC = () => {
     const router = useRouter();
 
     const handleHomeClick = () => {
