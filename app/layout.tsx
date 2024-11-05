@@ -1,28 +1,48 @@
-import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-const geistMono = localFont({
-  src: "./fonts/Mulish.ttf",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+// Подключаем каждый вес и стиль
+const mulishRegular = localFont({
+  src: "./fonts/Mulish-Regular.ttf",
+  variable: "--font-mulish-regular",
 });
 
-export const metadata: Metadata = {
-  title: "Tablet",
-  description: "Created by Gerus",
-  viewport: "width=device-width, initial-scale=0.5",
-};
+const mulishItalic = localFont({
+  src: "./fonts/Mulish-Italic.ttf",
+  variable: "--font-mulish-italic",
+});
+
+const mulishLight = localFont({
+  src: "./fonts/Mulish-Light.ttf",
+  variable: "--font-mulish-light",
+});
+
+const mulishLightItalic = localFont({
+  src: "./fonts/Mulish-LightItalic.ttf",
+  variable: "--font-mulish-light-italic",
+});
+
+const mulishBold = localFont({
+  src: "./fonts/Mulish-Bold.ttf",
+  variable: "--font-mulish-bold",
+});
+
+const mulishBoldItalic = localFont({
+  src: "./fonts/Mulish-BoldItalic.ttf",
+  variable: "--font-mulish-bold-italic",
+});
+
+// Добавьте другие веса и стили аналогичным образом
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="ru">
       <body
-        className={`${geistMono.variable} antialiased`}
+        className={`${mulishRegular.variable} ${mulishItalic.variable} ${mulishLight.variable} ${mulishLightItalic.variable} ${mulishBold.variable} ${mulishBoldItalic.variable} antialiased`}
       >
         {children}
       </body>
