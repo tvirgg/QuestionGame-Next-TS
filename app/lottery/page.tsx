@@ -31,10 +31,10 @@ const LotteryPage: React.FC = () => {
                         {step === 3 && (
                             <PaymentOptions
                                 amount={formData.playerCount * 100 || 100} // Пример суммы
-                                onNext={() => setStep(step + 1)}
-                            />
+                                onNext={() => setStep(step + 1)} pricePerPlayer={0} onBack={function (): void {
+                                    throw new Error('Function not implemented.');
+                                } }                            />
                         )}
-                        {step === 4 && <CardInputForm onSubmit={handleClose} />}
                     </Modal>
                 )}
             </div>

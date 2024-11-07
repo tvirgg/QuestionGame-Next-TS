@@ -31,7 +31,10 @@ const mulishBoldItalic = localFont({
   src: "./fonts/Mulish-BoldItalic.ttf",
   variable: "--font-mulish-bold-italic",
 });
-
+const mulishSemiBold = localFont({
+  src: "./fonts/Mulish-SemiBold.ttf",
+  variable: "--font-mulish-semibold",
+});
 // Добавьте другие веса и стили аналогичным образом
 
 export default function RootLayout({
