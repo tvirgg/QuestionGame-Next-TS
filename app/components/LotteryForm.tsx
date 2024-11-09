@@ -11,78 +11,124 @@ const LotteryForm: React.FC<LotteryFormProps> = ({ onNext }) => {
     const [phone, setPhone] = useState('');
     const [agree, setAgree] = useState(false);
 
+    // Состояния для хранения ошибок
+    const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string; agree?: string }>({});
+
+    const validate = () => {
+        const newErrors: { name?: string; email?: string; phone?: string; agree?: string } = {};
+
+        if (!name.trim()) {
+            newErrors.name = 'Пожалуйста, введите ваше имя.';
+        }
+
+        if (!email.trim()) {
+            newErrors.email = 'Пожалуйста, введите вашу электронную почту.';
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            newErrors.email = 'Пожалуйста, введите корректный email.';
+        }
+
+        if (!phone.trim()) {
+            newErrors.phone = 'Пожалуйста, введите ваш телефон.';
+        } else if (!/^\+?\d{10,15}$/.test(phone)) {
+            newErrors.phone = 'Пожалуйста, введите корректный номер телефона.';
+        }
+
+        if (!agree) {
+            newErrors.agree = 'Вы должны согласиться с политикой обработки персональных данных.';
+        }
+
+        setErrors(newErrors);
+
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = () => {
-        if (agree) {
+        if (validate()) {
             onNext({ name, email, phone });
-        } else {
-            alert('Пожалуйста, согласитесь с политикой обработки персональных данных');
+            // Сброс ошибок при успешной отправке
+            setErrors({});
         }
     };
 
     return (
-        <div className="bg-white p-8 max-w-6xl mx-auto flex border border-gray-300">
-            <div className="w-2/3 pr-8">
-                <div className="mb-6">
-                    <span className="text-lg font-bold text-[#CC9F33] border border-[#CC9F33] py-1 px-4 rounded-full">
-                        НАЗВАНИЕ КОМАНДЫ
+        <div className="bg-white p-8 mx-auto flex pt-[120px] pb-[60px] w-[85%]">
+            <div className="w-1/2 pr-8">
+                <div className="mb-14">
+                    <span className="text-lg font-regular text-[#CC9F33] border border-[#CC9F33] p-3 px-5 rounded-[15px]">
+                        КОМАНДА А
                     </span>
                 </div>
-                <h2 className="text-3xl font-bold text-black mb-6">Примите участие в нашей лотерее</h2>
-                <div className="mb-4">
-                    <label className="block text-lg font-medium mb-2 text-[#CC9F33]">Ваше имя</label>
+                <h2 className="text-[45px] font-bold text-black mb-10 leading-[1.1]">Примите участие в нашей лотерее</h2>
+                <div className="mb-3">
                     <input
                         type="text"
                         placeholder="Ваше имя"
-                        className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-[#CC9F33] placeholder-black"
+                        className={`w-full border ${errors.name ? 'border-red-500' : 'border-gray-300'} p-3 rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#CC9F33] placeholder-black`}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
+                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                 </div>
-                <div className="mb-4">
-                    <label className="block text-lg font-medium mb-2 text-[#CC9F33]">Ваша электронная почта</label>
+                <div className="mb-3">
                     <input
                         type="email"
-                        placeholder="example@mail.com"
-                        className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-[#CC9F33] placeholder-black"
+                        placeholder="Ваша электронная почта"
+                        className={`w-full border ${errors.email ? 'border-red-500' : 'border-gray-300'} p-3 rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#CC9F33] placeholder-black`}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
+                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
-                <div className="mb-4">
-                    <label className="block text-lg font-medium mb-2 text-[#CC9F33]">Телефон</label>
+                <div className="mb-6">
                     <input
                         type="tel"
-                        placeholder="+7 (___) ___-__-__"
-                        className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-[#CC9F33] placeholder-black"
+                        placeholder="Телефон"
+                        className={`w-full border ${errors.phone ? 'border-red-500' : 'border-gray-300'} p-3 rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#CC9F33] placeholder-black`}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                     />
+                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
                 <button
                     onClick={handleSubmit}
-                    className="bg-[#CC9F33] text-white py-3 px-6 rounded font-semibold hover:bg-[#b2882a] mb-4"
+                    className="bg-[#CC9F33] text-white py-3 px-6 rounded-[10px] font-regular hover:bg-[#b2882a] mb-8 w-full text-[14px]"
                 >
-                    Участвовать в лотерее
+                    УЧАСТВОВАТЬ В ЛОТЕРЕЕ
                 </button>
-                <div className="flex items-center mb-4">
-                    <input
-                        type="checkbox"
-                        className="mr-2 w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-[#CC9F33] accent-[#CC9F33]"
-                        checked={agree}
-                        onChange={(e) => setAgree(e.target.checked)}
-                    />
-                    <label className="text-sm text-gray-600">
-                        Нажимая на кнопку, вы соглашаетесь с политикой обработки персональных данных
-                    </label>
-                </div>
-                <div className="text-lg font-semibold mb-6">
-                    <span className="text-black">500 ₽ к оплате</span>
-                    <span className="ml-4 text-black">700 ₽ цена за 1 человека</span>
+                <div className="flex items-start mb-4">
+                    <div className="flex items-center  mr-2 mt-2.5">
+                        <input
+                            type="checkbox"
+                            className={`mr-2 w-[24px] h-[24px] border ${errors.agree ? 'border-red-500' : 'border-gray-300'} rounded bg-white appearance-none relative checked:bg-[#CC9F33]`}
+                            checked={agree}
+                            onChange={(e) => setAgree(e.target.checked)}
+                        />
+                        <style jsx>{`
+                            input[type="checkbox"]:checked::after {
+                                content: "";
+                                display: block;
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                width: 6px;
+                                height: 12px;
+                                border: solid white;
+                                border-width: 0 2px 2px 0;
+                                transform: translate(-50%, -50%) rotate(45deg);
+                            }
+                        `}</style>
+                    </div>
+                    <div className="flex-1">
+                    <p className="text-[13px] text-gray-600 leading-[1.3] mt-1">
+        Нажимая на кнопку, вы соглашаетесь <br /> с политикой обработки персональных данных
+    </p>
+                        {errors.agree && <p className="text-red-500 text-sm mt-1">{errors.agree}</p>}
+                    </div>
                 </div>
             </div>
-            <div className="w-1/3 text-sm text-gray-800">
-                <h3 className="font-semibold mb-2 text-[#CC9F33]">Правила проведения лотереи*</h3>
-                <ul className="list-disc list-inside space-y-2">
+            <div className="w-1/2 text-sm text-gray-800 pl-14">
+                <h3 className="font-bold mb-4 text-[#CC9F33] text-[20px]">Правила проведения лотереи*</h3>
+                <ul className="list-disc list-outside space-y-2 font-regular text-[14px]">
                     <li>Лотерея проводится в рамках квиз-игры и доступна всем участникам, пришедшим на игру.</li>
                     <li>Для участия необходимо зарегистрироваться, отправив ФИО и телефон в предложенной форме.</li>
                     <li>Каждый участник может зарегистрироваться только один раз, дубликаты удаляются.</li>
@@ -94,11 +140,12 @@ const LotteryForm: React.FC<LotteryFormProps> = ({ onNext }) => {
                     <li>Призы выдаются лично в руки победителям сразу после объявления результатов или по завершении игры.</li>
                     <li>Призы не подлежат обмену на деньги и возврату.</li>
                 </ul>
-                <p className="mt-4 font-semibold text-[#CC9F33]">Приятной игры и удачи в лотерее!</p>
-                <p>Полные правила лотереи вы можете посмотреть тут: <a href="#" className="text-blue-500 underline">ссылка</a></p>
+                <p className="mt-[24px] mb-2 font-bold text-[#CC9F33]">Приятной игры и удачи в лотерее!</p>
+                <p>Полные правила лотереи вы можете посмотреть тут: <a href="#" className="underline text-[#CC9F33]">ссылка</a></p>
             </div>
         </div>
     );
+
 };
 
 export default LotteryForm;

@@ -8,13 +8,13 @@ const ReturnButton: React.FC = () => {
 
     return (
         <button
-            className="flex justify-center items-center w-[80px] h-[80px] cursor-pointer transition-colors duration-200"
-            onClick={() => router.push('/hello')}
+            className="flex justify-center items-centercursor-pointer transition-colors duration-200"
+            onClick={() => router.push('/')}
         >
                 <img
                         src="/House.svg"
                         alt="House icon"
-                        className="h-12 w-12 cursor-pointer w-[80px] h-[80px]"
+                        className="h-12 w-12 cursor-pointer w-[120px] h-[120px]"
                     />
         </button>
     );
