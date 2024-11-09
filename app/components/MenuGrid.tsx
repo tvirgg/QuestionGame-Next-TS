@@ -79,6 +79,8 @@ const MenuGrid: React.FC = () => {
                     {lotteryStep === 3 && (
                         <PaymentOptions
                             amount={lotteryData.playerCount * 100 || 100} // Пример суммы
+                            pricePerPlayer={100} // Assuming 100 is the price per player
+                            onBack={() => setLotteryStep(lotteryStep - 1)}
                             onNext={() => setLotteryStep(lotteryStep + 1)}
                         />
                     )}
