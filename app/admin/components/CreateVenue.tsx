@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, ChangeEvent, useEffect } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import {
     XIcon,
     PlusIcon,
@@ -95,11 +95,28 @@ const CreateVenue: React.FC = () => {
     // Состояние для фильтрации блюд по категории
     const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | number>('Все');
 
+    // Состояния для ошибок валидации
+    const [newRestaurantNameError, setNewRestaurantNameError] = useState('');
+    const [newMenuItemErrors, setNewMenuItemErrors] = useState({
+        name: '',
+        categoryId: '',
+        price: '',
+    });
+    const [editedMenuItemErrors, setEditedMenuItemErrors] = useState({
+        name: '',
+        categoryId: '',
+        price: '',
+    });
+    const [newCategoryNameError, setNewCategoryNameError] = useState('');
+    const [editingCategoryNameError, setEditingCategoryNameError] = useState('');
+
     // Обработчики для создания нового места
     const handleCreateVenue = () => {
         if (!newRestaurantName.trim()) {
-            alert('Пожалуйста, укажите название ресторана.');
+            setNewRestaurantNameError('Пожалуйста, укажите название ресторана.');
             return;
+        } else {
+            setNewRestaurantNameError('');
         }
 
         const newVenue: Venue = {
@@ -120,6 +137,8 @@ const CreateVenue: React.FC = () => {
         setSelectedVenue(venue);
         setIsModalOpen(true);
         setSelectedCategoryFilter('Все');
+        setNewMenuItemErrors({ name: '', categoryId: '', price: '' });
+        setEditedMenuItemErrors({ name: '', categoryId: '', price: '' });
     };
 
     const closeModal = () => {
@@ -128,19 +147,34 @@ const CreateVenue: React.FC = () => {
         setNewMenuItem({ id: 0, name: '', categoryId: 0, price: 0, photo: null });
         setEditingMenuItemId(null);
         setEditedMenuItem(null);
+        setNewMenuItemErrors({ name: '', categoryId: '', price: '' });
+        setEditedMenuItemErrors({ name: '', categoryId: '', price: '' });
     };
 
     // Обработчик для добавления нового блюда
     const handleAddMenuItem = () => {
         if (selectedVenue) {
-            if (
-                !newMenuItem.name.trim() ||
-                !newMenuItem.categoryId ||
-                newMenuItem.price <= 0
-            ) {
-                alert('Пожалуйста, заполните все поля для нового блюда.');
-                return;
+            const errors = { name: '', categoryId: '', price: '' };
+
+            if (!newMenuItem.name.trim()) {
+                errors.name = 'Пожалуйста, укажите название блюда.';
             }
+
+            if (!newMenuItem.categoryId) {
+                errors.categoryId = 'Пожалуйста, выберите категорию.';
+            }
+
+            if (newMenuItem.price <= 0) {
+                errors.price = 'Пожалуйста, укажите цену больше 0.';
+            }
+
+            if (errors.name || errors.categoryId || errors.price) {
+                setNewMenuItemErrors(errors);
+                return;
+            } else {
+                setNewMenuItemErrors({ name: '', categoryId: '', price: '' });
+            }
+
             const updatedMenuItems = [
                 ...selectedVenue.menuItems,
                 { ...newMenuItem, id: Date.now() },
@@ -175,10 +209,32 @@ const CreateVenue: React.FC = () => {
     const handleEditMenuItem = (menuItem: MenuItem) => {
         setEditingMenuItemId(menuItem.id);
         setEditedMenuItem({ ...menuItem });
+        setEditedMenuItemErrors({ name: '', categoryId: '', price: '' });
     };
 
     const handleSaveEditedMenuItem = () => {
         if (selectedVenue && editedMenuItem) {
+            const errors = { name: '', categoryId: '', price: '' };
+
+            if (!editedMenuItem.name.trim()) {
+                errors.name = 'Пожалуйста, укажите название блюда.';
+            }
+
+            if (!editedMenuItem.categoryId) {
+                errors.categoryId = 'Пожалуйста, выберите категорию.';
+            }
+
+            if (editedMenuItem.price <= 0) {
+                errors.price = 'Пожалуйста, укажите цену больше 0.';
+            }
+
+            if (errors.name || errors.categoryId || errors.price) {
+                setEditedMenuItemErrors(errors);
+                return;
+            } else {
+                setEditedMenuItemErrors({ name: '', categoryId: '', price: '' });
+            }
+
             const updatedMenuItems = selectedVenue.menuItems.map((item) =>
                 item.id === editedMenuItem.id ? editedMenuItem : item
             );
@@ -202,6 +258,8 @@ const CreateVenue: React.FC = () => {
         setEditingCategoryId(null);
         setEditingCategoryName('');
         setNewCategoryName('');
+        setNewCategoryNameError('');
+        setEditingCategoryNameError('');
     };
 
     const closeCategoryModal = () => {
@@ -233,18 +291,21 @@ const CreateVenue: React.FC = () => {
         setEditingCategoryId(null);
         setEditingCategoryName('');
         setNewCategoryName('');
+        setNewCategoryNameError('');
+        setEditingCategoryNameError('');
     };
 
     const handleAddCategory = () => {
         const trimmedCategory = newCategoryName.trim();
         if (!trimmedCategory) {
-            alert('Пожалуйста, укажите название категории.');
+            setNewCategoryNameError('Пожалуйста, укажите название категории.');
             return;
         }
         if (localCategories.some((category) => category.name === trimmedCategory)) {
-            alert('Такая категория уже существует.');
+            setNewCategoryNameError('Такая категория уже существует.');
             return;
         }
+        setNewCategoryNameError('');
         const newCategory: Category = {
             id: Date.now(),
             name: trimmedCategory,
@@ -263,7 +324,7 @@ const CreateVenue: React.FC = () => {
     const handleSaveEditedCategory = (categoryId: number) => {
         const trimmedName = editingCategoryName.trim();
         if (!trimmedName) {
-            alert('Название категории не может быть пустым.');
+            setEditingCategoryNameError('Название категории не может быть пустым.');
             return;
         }
         if (
@@ -271,9 +332,10 @@ const CreateVenue: React.FC = () => {
                 (category) => category.name === trimmedName && category.id !== categoryId
             )
         ) {
-            alert('Категория с таким названием уже существует.');
+            setEditingCategoryNameError('Категория с таким названием уже существует.');
             return;
         }
+        setEditingCategoryNameError('');
         const updatedCategories = localCategories.map((category) =>
             category.id === categoryId ? { ...category, name: trimmedName } : category
         );
@@ -321,35 +383,42 @@ const CreateVenue: React.FC = () => {
               )
         : [];
 
-    return (
-        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-center">
-                Панель администратора: Создание места проведения
-            </h2>
+    const currentMenuItem =
+        editingMenuItemId && editedMenuItem ? editedMenuItem : newMenuItem;
+    const currentMenuItemErrors =
+        editingMenuItemId && editedMenuItem ? editedMenuItemErrors : newMenuItemErrors;
 
+    return (
+        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg text-center py-20">
             {/* Форма для создания нового места */}
-            <div className="flex flex-col space-y-4 mb-8">
+            <div className="flex flex-col space-y-4 mb-8 w-2/3 mx-auto">
                 <h3 className="text-xl font-semibold">Добавить новое место проведения</h3>
-                <div className="flex items-center">
-                    <input
-                        type="text"
-                        placeholder="Название ресторана"
-                        value={newRestaurantName}
-                        onChange={(e) => setNewRestaurantName(e.target.value)}
-                        className="p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373]"
-                    />
-                    <button
-                        className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 ml-4 flex items-center"
-                        onClick={handleCreateVenue}
-                    >
-                        <PlusIcon className="h-5 w-5 mr-1" />
-                        Создать место
-                    </button>
+                <div className="flex flex-col">
+                    <div className="flex items-center">
+                        <input
+                            type="text"
+                            placeholder="Название ресторана"
+                            value={newRestaurantName}
+                            onChange={(e) => setNewRestaurantName(e.target.value)}
+                            className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                newRestaurantNameError ? 'border-red-500' : ''
+                            }`}
+                        />
+                        <button
+                            className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 ml-4 flex items-center"
+                            onClick={handleCreateVenue}
+                        >
+                            <PlusIcon className="h-5 w-5" />
+                        </button>
+                    </div>
+                    {newRestaurantNameError && (
+                        <p className="text-red-500 text-sm mt-1">{newRestaurantNameError}</p>
+                    )}
                 </div>
             </div>
 
             {/* Список существующих мест */}
-            <div>
+            <div className="w-2/3 mx-auto">
                 <h3 className="text-xl font-semibold mb-4">Список мест проведения</h3>
                 {venues.length === 0 ? (
                     <p>Нет доступных мест проведения.</p>
@@ -374,7 +443,7 @@ const CreateVenue: React.FC = () => {
             {/* Модальное окно для редактирования меню места */}
             {isModalOpen && selectedVenue && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-                    <div className="bg-[#FFF8E1] rounded-lg w-11/12 md:w-3/4 lg:w-2/3 p-6 relative shadow-lg overflow-y-auto max-h-screen">
+                    <div className="bg-[#FFF8E1] rounded-lg w-2/4 p-6 relative shadow-lg overflow-y-auto max-h-screen py-20 px-[100px]">
                         {/* Кнопка закрытия модального окна */}
                         <button
                             className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
@@ -473,36 +542,41 @@ const CreateVenue: React.FC = () => {
                             {/* Форма для добавления нового блюда */}
                             <div className="flex-1">
                                 <h4 className="text-xl font-semibold mb-4">
-                                    {editingMenuItemId ? 'Редактировать блюдо' : 'Добавить новое блюдо'}
+                                    {editingMenuItemId
+                                        ? 'Редактировать блюдо'
+                                        : 'Добавить новое блюдо'}
                                 </h4>
                                 <div className="space-y-4">
                                     <input
                                         type="text"
                                         placeholder="Название блюда"
-                                        value={
-                                            editingMenuItemId && editedMenuItem
-                                                ? editedMenuItem.name
-                                                : newMenuItem.name
-                                        }
+                                        value={currentMenuItem.name}
                                         onChange={(e) => {
+                                            const name = e.target.value;
                                             if (editingMenuItemId && editedMenuItem) {
                                                 setEditedMenuItem({
                                                     ...editedMenuItem,
-                                                    name: e.target.value,
+                                                    name,
                                                 });
                                             } else {
-                                                setNewMenuItem({ ...newMenuItem, name: e.target.value });
+                                                setNewMenuItem({
+                                                    ...newMenuItem,
+                                                    name,
+                                                });
                                             }
                                         }}
-                                        className="p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373]"
+                                        className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                            currentMenuItemErrors.name ? 'border-red-500' : ''
+                                        }`}
                                     />
+                                    {currentMenuItemErrors.name && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {currentMenuItemErrors.name}
+                                        </p>
+                                    )}
                                     <div className="flex items-center space-x-2">
                                         <select
-                                            value={
-                                                editingMenuItemId && editedMenuItem
-                                                    ? editedMenuItem.categoryId
-                                                    : newMenuItem.categoryId || ''
-                                            }
+                                            value={currentMenuItem.categoryId || ''}
                                             onChange={(e) => {
                                                 const categoryId = Number(e.target.value);
                                                 if (editingMenuItemId && editedMenuItem) {
@@ -517,7 +591,11 @@ const CreateVenue: React.FC = () => {
                                                     });
                                                 }
                                             }}
-                                            className="p-2 rounded border flex-1 focus:outline-none focus:ring-2 focus:ring-[#D4A373]"
+                                            className={`p-2 rounded border flex-1 focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                                currentMenuItemErrors.categoryId
+                                                    ? 'border-red-500'
+                                                    : ''
+                                            }`}
                                         >
                                             <option value="">Выберите категорию</option>
                                             {selectedVenue.categories.map((category) => (
@@ -527,39 +605,44 @@ const CreateVenue: React.FC = () => {
                                             ))}
                                         </select>
                                     </div>
+                                    {currentMenuItemErrors.categoryId && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {currentMenuItemErrors.categoryId}
+                                        </p>
+                                    )}
                                     <input
                                         type="number"
                                         placeholder="Цена"
-                                        value={
-                                            editingMenuItemId && editedMenuItem
-                                                ? editedMenuItem.price
-                                                : newMenuItem.price
-                                        }
+                                        value={currentMenuItem.price}
                                         onChange={(e) => {
+                                            const price = Number(e.target.value);
                                             if (editingMenuItemId && editedMenuItem) {
                                                 setEditedMenuItem({
                                                     ...editedMenuItem,
-                                                    price: Number(e.target.value),
+                                                    price,
                                                 });
                                             } else {
                                                 setNewMenuItem({
                                                     ...newMenuItem,
-                                                    price: Number(e.target.value),
+                                                    price,
                                                 });
                                             }
                                         }}
-                                        className="p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373]"
+                                        className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                            currentMenuItemErrors.price ? 'border-red-500' : ''
+                                        }`}
                                     />
+                                    {currentMenuItemErrors.price && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {currentMenuItemErrors.price}
+                                        </p>
+                                    )}
                                     <label className="flex items-center space-x-2 cursor-pointer">
                                         {/* Иконка загрузки фото */}
                                         <UploadIcon className="h-6 w-6 text-gray-600" />
                                         <span className="text-gray-600">
-                                            {editingMenuItemId &&
-                                            editedMenuItem &&
-                                            editedMenuItem.photo
-                                                ? editedMenuItem.photo.name
-                                                : newMenuItem.photo
-                                                ? newMenuItem.photo.name
+                                            {currentMenuItem.photo
+                                                ? currentMenuItem.photo.name
                                                 : 'Добавить фото'}
                                         </span>
                                         <input
@@ -598,6 +681,11 @@ const CreateVenue: React.FC = () => {
                                                 onClick={() => {
                                                     setEditingMenuItemId(null);
                                                     setEditedMenuItem(null);
+                                                    setEditedMenuItemErrors({
+                                                        name: '',
+                                                        categoryId: '',
+                                                        price: '',
+                                                    });
                                                 }}
                                             >
                                                 <XIcon className="h-5 w-5 mr-1" />
@@ -633,27 +721,32 @@ const CreateVenue: React.FC = () => {
                             {/* Иконка крестика */}
                             <XIcon className="h-6 w-6" />
                         </button>
-                        <h3 className="text-2xl font-semibold mb-4 text-center">
-                            Категории
-                        </h3>
+                        <h3 className="text-2xl font-semibold mb-4 text-center">Категории</h3>
 
                         {/* Форма для добавления новой категории */}
                         <h4 className="text-xl font-semibold mb-4">Добавить новую категорию</h4>
-                        <div className="flex space-x-2 mb-4">
-                            <input
-                                type="text"
-                                placeholder="Название категории"
-                                value={newCategoryName}
-                                onChange={(e) => setNewCategoryName(e.target.value)}
-                                className="p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373]"
-                            />
-                            <button
-                                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-200 flex items-center"
-                                onClick={handleAddCategory}
-                            >
-                                <PlusIcon className="h-5 w-5 mr-1" />
-                                Добавить
-                            </button>
+                        <div className="flex flex-col mb-4">
+                            <div className="flex space-x-2">
+                                <input
+                                    type="text"
+                                    placeholder="Название категории"
+                                    value={newCategoryName}
+                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        newCategoryNameError ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                <button
+                                    className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-200 flex items-center"
+                                    onClick={handleAddCategory}
+                                >
+                                    <PlusIcon className="h-5 w-5 mr-1" />
+                                    Добавить
+                                </button>
+                            </div>
+                            {newCategoryNameError && (
+                                <p className="text-red-500 text-sm mt-1">{newCategoryNameError}</p>
+                            )}
                         </div>
 
                         {/* Список категорий */}
@@ -668,14 +761,18 @@ const CreateVenue: React.FC = () => {
                                         className="flex items-center justify-between"
                                     >
                                         {editingCategoryId === category.id ? (
-                                            <>
+                                            <div className="flex items-center w-full">
                                                 <input
                                                     type="text"
                                                     value={editingCategoryName}
                                                     onChange={(e) =>
                                                         setEditingCategoryName(e.target.value)
                                                     }
-                                                    className="p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373]"
+                                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                                        editingCategoryNameError
+                                                            ? 'border-red-500'
+                                                            : ''
+                                                    }`}
                                                 />
                                                 <button
                                                     className="text-green-500 hover:text-green-700 ml-2"
@@ -690,11 +787,12 @@ const CreateVenue: React.FC = () => {
                                                     onClick={() => {
                                                         setEditingCategoryId(null);
                                                         setEditingCategoryName('');
+                                                        setEditingCategoryNameError('');
                                                     }}
                                                 >
                                                     <XIcon className="h-5 w-5" />
                                                 </button>
-                                            </>
+                                            </div>
                                         ) : (
                                             <>
                                                 <span>{category.name}</span>
@@ -704,6 +802,7 @@ const CreateVenue: React.FC = () => {
                                                         onClick={() => {
                                                             setEditingCategoryId(category.id);
                                                             setEditingCategoryName(category.name);
+                                                            setEditingCategoryNameError('');
                                                         }}
                                                     >
                                                         <PencilAltIcon className="h-5 w-5" />
@@ -723,7 +822,11 @@ const CreateVenue: React.FC = () => {
                                 ))}
                             </ul>
                         )}
-
+                        {editingCategoryNameError && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {editingCategoryNameError}
+                            </p>
+                        )}
                         {/* Кнопки сохранения и отмены */}
                         <div className="mt-6 text-center">
                             <button

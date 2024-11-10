@@ -33,11 +33,11 @@ const LotteryTab: React.FC = () => {
     };
 
     return (
-        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-center">Лотерея</h2>
-            <div className="flex justify-center mb-4">
+        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg p-20">
+            <h2 className="text-2xl font-bold mb-4">Лотерея</h2>
+            <div className="flex justify-start mb-4 mb-15">
                 <button
-                    className="bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200"
+                    className="bg-[#c99b6d] text-white py-2 px-4 rounded hover:bg-[#691d2d] transition-colors duration-200"
                     onClick={selectWinner}
                 >
                     Выбрать победителя
@@ -72,12 +72,12 @@ const LotteryTab: React.FC = () => {
             {/* Модальное окно для отображения победителя */}
             {isModalOpen && winner && (
                 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-                    <h2 className="text-2xl font-bold mb-4 text-center">Поздравляем победителя!</h2>
+                    <h2 className="text-2xl font-bold mb-4 text-center mt-20 mx-20">Поздравляем победителя!</h2>
                     <p className="text-center text-lg mb-4">Команда: {winner.team}</p>
                     <p className="text-center text-lg mb-4">Стол: {winner.tableNumber}</p>
                     <p className="text-center text-lg mb-4">Имя: {winner.name}</p>
                     <button
-                        className="bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200 mx-auto block"
+                        className="bg-green text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200 mx-auto block mb-20"
                         onClick={() => setIsModalOpen(false)}
                     >
                         Закрыть

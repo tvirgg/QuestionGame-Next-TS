@@ -56,7 +56,7 @@ const PaymentsTab: React.FC = () => {
 
     return (
         <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-center">Оплаты</h2>
+            <h2 className="text-2xl font-bold mb-4 ml-2 mt-10">Оплаты</h2>
             {/* Обернем таблицу в контейнер с горизонтальной прокруткой */}
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-white rounded-lg overflow-hidden">
@@ -112,27 +112,6 @@ const PaymentsTab: React.FC = () => {
                     </tbody>
                 </table>
             </div>
-            {/* Удаляем модальное окно, так как оно больше не нужно */}
-            {/* {isModalOpen && currentPayment && (
-                <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-                    <h2 className="text-2xl font-bold mb-4 text-center">Добавление доплаты</h2>
-                    <div className="flex flex-col space-y-4">
-                        <input
-                            type="number"
-                            placeholder="Сумма доплаты"
-                            value={additionalPayment}
-                            onChange={(e) => setAdditionalPayment(Number(e.target.value))}
-                            className="p-2 rounded border"
-                        />
-                        <button
-                            className="bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200"
-                            onClick={handleAddPayment}
-                        >
-                            Добавить
-                        </button>
-                    </div>
-                </Modal>
-            )} */}
         </div>
     );
 

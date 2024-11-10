@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState } from 'react';
 import Modal from './Modal';
@@ -33,13 +32,24 @@ const ScoreCountingTab: React.FC = () => {
 
     const handleSave = () => {
         if (currentScore) {
-            setScores(scores.map(score => score.id === currentScore.id ? currentScore : score));
+            // Пересчитываем итог, если это необходимо
+            const updatedTotal = 
+                currentScore.round1 + 
+                currentScore.round2 + 
+                currentScore.round3 + 
+                currentScore.round4 + 
+                currentScore.round5 + 
+                currentScore.round6 + 
+                currentScore.round7;
+            setCurrentScore({ ...currentScore, total: updatedTotal });
+
+            setScores(scores.map(score => score.id === currentScore.id ? { ...currentScore, total: updatedTotal } : score));
         }
         setIsModalOpen(false);
     };
 
     return (
-        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg">
+        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg p-20">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Подсчёт очков</h2>
                 {/* Здесь можно добавить кнопки для завершения игры и возврата назад */}
@@ -92,71 +102,98 @@ const ScoreCountingTab: React.FC = () => {
             {/* Модальное окно для редактирования очков */}
             {isModalOpen && currentScore && (
                 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                    <div className="m-20  mx-[200px] w-[300px]">
                     <h2 className="text-2xl font-bold mb-4 text-center">Редактирование очков</h2>
-                    <div className="flex flex-col space-y-4">
-                        <input
-                            type="number"
-                            placeholder="Раунд 1"
-                            value={currentScore.round1}
-                            onChange={(e) => setCurrentScore({ ...currentScore, round1: Number(e.target.value) })}
-                            className="p-2 rounded border"
-                        />
-                        <input
-                            type="number"
-                            placeholder="Раунд 2"
-                            value={currentScore.round2}
-                            onChange={(e) => setCurrentScore({ ...currentScore, round2: Number(e.target.value) })}
-                            className="p-2 rounded border"
-                        />
-                        <input
-                            type="number"
-                            placeholder="Раунд 3"
-                            value={currentScore.round3}
-                            onChange={(e) => setCurrentScore({ ...currentScore, round3: Number(e.target.value) })}
-                            className="p-2 rounded border"
-                        />
-                        <input
-                            type="number"
-                            placeholder="Раунд 4"
-                            value={currentScore.round4}
-                            onChange={(e) => setCurrentScore({ ...currentScore, round4: Number(e.target.value) })}
-                            className="p-2 rounded border"
-                        />
-                        <input
-                            type="number"
-                            placeholder="Раунд 5"
-                            value={currentScore.round5}
-                            onChange={(e) => setCurrentScore({ ...currentScore, round5: Number(e.target.value) })}
-                            className="p-2 rounded border"
-                        />
-                        <input
-                            type="number"
-                            placeholder="Раунд 6"
-                            value={currentScore.round6}
-                            onChange={(e) => setCurrentScore({ ...currentScore, round6: Number(e.target.value) })}
-                            className="p-2 rounded border"
-                        />
-                        <input
-                            type="number"
-                            placeholder="Раунд 7"
-                            value={currentScore.round7}
-                            onChange={(e) => setCurrentScore({ ...currentScore, round7: Number(e.target.value) })}
-                            className="p-2 rounded border"
-                        />
-                        <input
-                            type="number"
-                            placeholder="Итого"
-                            value={currentScore.total}
-                            onChange={(e) => setCurrentScore({ ...currentScore, total: Number(e.target.value) })}
-                            className="p-2 rounded border"
-                            disabled
-                        />
+                    <form className="flex flex-col space-y-4">
+                        <div className="flex flex-col">
+                            <label htmlFor="round1" className="mb-1">Раунд 1</label>
+                            <input
+                                id="round1"
+                                type="number"
+                                value={currentScore.round1}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round1: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round2" className="mb-1">Раунд 2</label>
+                            <input
+                                id="round2"
+                                type="number"
+                                value={currentScore.round2}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round2: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round3" className="mb-1">Раунд 3</label>
+                            <input
+                                id="round3"
+                                type="number"
+                                value={currentScore.round3}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round3: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round4" className="mb-1">Раунд 4</label>
+                            <input
+                                id="round4"
+                                type="number"
+                                value={currentScore.round4}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round4: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round5" className="mb-1">Раунд 5</label>
+                            <input
+                                id="round5"
+                                type="number"
+                                value={currentScore.round5}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round5: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round6" className="mb-1">Раунд 6</label>
+                            <input
+                                id="round6"
+                                type="number"
+                                value={currentScore.round6}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round6: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round7" className="mb-1">Раунд 7</label>
+                            <input
+                                id="round7"
+                                type="number"
+                                value={currentScore.round7}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round7: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="total" className="mb-1">Итого</label>
+                            <input
+                                id="total"
+                                type="number"
+                                value={currentScore.total}
+                                onChange={(e) => setCurrentScore({ ...currentScore, total: Number(e.target.value) })}
+                                className="p-2 rounded border bg-gray-100"
+                                disabled
+                            />
+                        </div>
                         <button
+                            type="button"
                             className="bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200"
                             onClick={handleSave}
                         >
                             Сохранить
                         </button>
+                    </form>
                     </div>
                 </Modal>
             )}

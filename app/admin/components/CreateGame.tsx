@@ -34,7 +34,7 @@ const CreateGame: React.FC = () => {
     };
 
     return (
-        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg text-center">
+        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg text-center py-20">
             <h2 className="text-2xl font-bold mb-4">Создание игры</h2>
             <div className="flex flex-col space-y-4 items-center">
                 <input
