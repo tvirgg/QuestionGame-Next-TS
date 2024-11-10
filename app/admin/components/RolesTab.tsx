@@ -121,7 +121,7 @@ const RolesTab: React.FC = () => {
     };
 
     return (
-        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg p-20">
+        <div className="bg-[#FAF3DD] text-black rounded-lg shadow-lg p-20">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Роли</h2>
                 <button
