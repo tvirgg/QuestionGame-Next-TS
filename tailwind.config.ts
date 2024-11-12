@@ -18,7 +18,7 @@ const config: Config = {
       fontWeight: {
         light: "300",
         regular: "400",
-        semibold: "600",
+        semibold: "550",
         bold: "700",
       },
     },
