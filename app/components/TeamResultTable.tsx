@@ -55,16 +55,16 @@ const TeamResultTable: React.FC = () => {
                             } hover:bg-gray-200 transition-colors duration-200 font-regular text-[26px] `}
                         >
                             {/* Новая ячейка "Место" */}
-                            <td className="border px-4 py-3 pl-8 w-[80px]">{index + 1}</td>
+                            <td className="border px-4 py-3 pl-8 w-[75px]">{index + 1}</td>
                             <td className="border px-4 py-3 pl-8 w-[340px]">{team.name}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.total}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round1}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round2}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round3}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round4}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round5}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round6}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round7}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.total}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round1}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round2}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round3}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round4}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round5}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round6}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round7}</td>
                         </tr>
                     ))}
                 </tbody>
