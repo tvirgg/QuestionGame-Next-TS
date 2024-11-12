@@ -4,9 +4,9 @@ import React from 'react';
 const RulesContent: React.FC = () => {
     return (
         <div className="rules-page text-[#333333] rounded-3xl max-w-2xl pt-[50px] pl-[90px]">
-            <h1 className="font-bold text-[58px] mb-6">Правила игры</h1>
-            <p className="mb-6 text-bold text-[40px] whitespace-nowrap">
-                Вас ждут <span className="font-semibold">7 раундов</span> с небольшими <br /> перерывами после 3 и 6 раундов.
+            <h1 className="font-semibold text-[58px] mb-6">Правила игры</h1>
+            <p className="mb-6 font-regular text-[40px] whitespace-nowrap">
+                Вас ждут <span className="">7 раундов</span> с небольшими <br /> перерывами после 3 и 6 раундов.
             </p>
 
             <p className="mb-4 text-[23px] whitespace-nowrap">
