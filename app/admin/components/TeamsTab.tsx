@@ -1,66 +1,103 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import { XIcon, PlusIcon, CheckIcon, PencilAltIcon, TrashIcon } from '@heroicons/react/outline';
+import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from 'baseapi/config';
 
 interface Team {
-    id: number;
-    tabletNumber: number; // Один номер планшета
-    teamName: string;
-    tableNumber: number;
-    registeredParticipants: number;
-    actualParticipants: number;
+    id: string;
+    user_id: string;
+    name: string;
+    table_number: number;
+    players_count: number;
+    players: any[];
+    extra_data: any;
+}
+
+interface User {
+    id: string;
+    username: string;
+    email: string;
+    role: string;
+    name: string;
 }
 
 const TeamsTab: React.FC = () => {
-    const [teams, setTeams] = useState<Team[]>([
-        {
-            id: 1,
-            tabletNumber: 1,
-            teamName: 'Команда А',
-            tableNumber: 101,
-            registeredParticipants: 5,
-            actualParticipants: 4,
-        },
-        {
-            id: 2,
-            tabletNumber: 2,
-            teamName: 'Команда Б',
-            tableNumber: 102,
-            registeredParticipants: 6,
-            actualParticipants: 6,
-        },
-        // Добавьте больше тестовых данных при необходимости
-    ]);
-
+    const { token } = useAuth();
+    const [teams, setTeams] = useState<Team[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
     const [newTeam, setNewTeam] = useState<Team>({
-        id: teams.length + 1,
-        tabletNumber: 0,
-        teamName: '',
-        tableNumber: 0,
-        registeredParticipants: 0,
-        actualParticipants: 0,
+        id: '',
+        user_id: '',
+        name: '',
+        table_number: 0,
+        players_count: 0,
+        players: [],
+        extra_data: {},
     });
 
-    // Состояния для ошибок валидации
     const [errors, setErrors] = useState({
-        tabletNumber: '',
-        teamName: '',
-        tableNumber: '',
-        registeredParticipants: '',
-        actualParticipants: '',
+        user_id: '',
+        name: '',
+        table_number: '',
     });
+
+    useEffect(() => {
+        // Fetch teams
+        const fetchTeams = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/teams`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setTeams(data);
+                } else if (response.status === 401) {
+                    // Handle unauthorized access
+                } else {
+                    // Handle other errors
+                }
+            } catch (error) {
+                console.error('Error fetching teams:', error);
+            }
+        };
+
+        // Fetch users (tablets)
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setUsers(data);
+                } else if (response.status === 401) {
+                    // Handle unauthorized access
+                } else {
+                    // Handle other errors
+                }
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        };
+
+        fetchTeams();
+        fetchUsers();
+    }, [token]);
 
     const openEditModal = (team: Team) => {
         setCurrentTeam(team);
         setErrors({
-            tabletNumber: '',
-            teamName: '',
-            tableNumber: '',
-            registeredParticipants: '',
-            actualParticipants: '',
+            user_id: '',
+            name: '',
+            table_number: '',
         });
         setIsModalOpen(true);
     };
@@ -68,69 +105,45 @@ const TeamsTab: React.FC = () => {
     const openAddModal = () => {
         setCurrentTeam(null);
         setNewTeam({
-            id: teams.length + 1,
-            tabletNumber: 0,
-            teamName: '',
-            tableNumber: 0,
-            registeredParticipants: 0,
-            actualParticipants: 0,
+            id: '',
+            user_id: '',
+            name: '',
+            table_number: 0,
+            players_count: 0,
+            players: [],
+            extra_data: {},
         });
         setErrors({
-            tabletNumber: '',
-            teamName: '',
-            tableNumber: '',
-            registeredParticipants: '',
-            actualParticipants: '',
+            user_id: '',
+            name: '',
+            table_number: '',
         });
         setIsModalOpen(true);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const teamToSave = currentTeam ? currentTeam : newTeam;
 
-        // Валидация
+        // Validation
         const newErrors = {
-            tabletNumber: '',
-            teamName: '',
-            tableNumber: '',
-            registeredParticipants: '',
-            actualParticipants: '',
+            user_id: '',
+            name: '',
+            table_number: '',
         };
         let isValid = true;
 
-        if (teamToSave.tabletNumber <= 0) {
-            newErrors.tabletNumber = 'Пожалуйста, укажите корректный номер планшета.';
-            isValid = false;
-        } else {
-            // Проверка на уникальность номера планшета
-            const isTabletAssigned = teams.some(
-                (team) =>
-                    team.tabletNumber === teamToSave.tabletNumber &&
-                    team.id !== teamToSave.id
-            );
-            if (isTabletAssigned) {
-                newErrors.tabletNumber = 'Этот номер планшета уже назначен другой команде.';
-                isValid = false;
-            }
-        }
-
-        if (!teamToSave.teamName.trim()) {
-            newErrors.teamName = 'Пожалуйста, укажите название команды.';
+        if (!teamToSave.user_id) {
+            newErrors.user_id = 'Пожалуйста, выберите пользователя (планшет).';
             isValid = false;
         }
 
-        if (teamToSave.tableNumber <= 0) {
-            newErrors.tableNumber = 'Пожалуйста, укажите корректный номер стола.';
+        if (!teamToSave.name.trim()) {
+            newErrors.name = 'Пожалуйста, укажите название команды.';
             isValid = false;
         }
 
-        if (teamToSave.registeredParticipants <= 0) {
-            newErrors.registeredParticipants = 'Пожалуйста, укажите количество зарегистрированных участников.';
-            isValid = false;
-        }
-
-        if (teamToSave.actualParticipants < 0) {
-            newErrors.actualParticipants = 'Количество фактических участников не может быть отрицательным.';
+        if (teamToSave.table_number <= 0) {
+            newErrors.table_number = 'Пожалуйста, укажите корректный номер стола.';
             isValid = false;
         }
 
@@ -141,18 +154,88 @@ const TeamsTab: React.FC = () => {
         }
 
         if (currentTeam) {
-            // Обновить существующую команду
-            setTeams(teams.map((team) => (team.id === currentTeam.id ? teamToSave : team)));
+            // Update existing team
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/teams/${currentTeam.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        name: teamToSave.name,
+                        table_number: teamToSave.table_number,
+                        extra_data: teamToSave.extra_data,
+                    }),
+                });
+                if (response.ok) {
+                    // Update team in state
+                    setTeams(teams.map((team) => (team.id === currentTeam.id ? teamToSave : team)));
+                    setIsModalOpen(false);
+                } else {
+                    // Handle errors
+                    console.error('Error updating team:', await response.text());
+                }
+            } catch (error) {
+                console.error('Error updating team:', error);
+            }
         } else {
-            // Добавить новую команду
-            setTeams([...teams, teamToSave]);
+            // Add new team
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/teams`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        user_id: teamToSave.user_id,
+                        name: teamToSave.name,
+                        table_number: teamToSave.table_number,
+                        extra_data: teamToSave.extra_data,
+                    }),
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    // Fetch the new team details
+                    const newTeamResponse = await fetch(`${API_BASE_URL}/teams/${data.team_id}`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+                    if (newTeamResponse.ok) {
+                        const newTeamData = await newTeamResponse.json();
+                        setTeams([...teams, newTeamData.team]);
+                        setIsModalOpen(false);
+                    }
+                } else {
+                    // Handle errors
+                    console.error('Error adding team:', await response.text());
+                }
+            } catch (error) {
+                console.error('Error adding team:', error);
+            }
         }
-        setIsModalOpen(false);
     };
 
-    const handleDeleteTeam = (teamId: number) => {
+    const handleDeleteTeam = async (teamId: string) => {
         if (confirm('Вы уверены, что хотите удалить эту команду?')) {
-            setTeams(teams.filter((team) => team.id !== teamId));
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/teams/${teamId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (response.ok) {
+                    setTeams(teams.filter((team) => team.id !== teamId));
+                } else {
+                    // Handle errors
+                    console.error('Error deleting team:', await response.text());
+                }
+            } catch (error) {
+                console.error('Error deleting team:', error);
+            }
         }
     };
 
@@ -173,7 +256,7 @@ const TeamsTab: React.FC = () => {
                     <thead>
                         <tr>
                             <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
-                                Номер планшета
+                                Пользователь (Планшет)
                             </th>
                             <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
                                 Название команды
@@ -182,10 +265,7 @@ const TeamsTab: React.FC = () => {
                                 Номер стола
                             </th>
                             <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
-                                Зарегистрировано
-                            </th>
-                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
-                                Фактически
+                                Кол-во игроков
                             </th>
                             <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
                                 Действия
@@ -201,15 +281,12 @@ const TeamsTab: React.FC = () => {
                                 } hover:bg-gray-200 transition-colors duration-200`}
                             >
                                 <td className="border px-4 py-3 text-center">
-                                    {team.tabletNumber}
+                                    {users.find((user) => user.id === team.user_id)?.username || 'N/A'}
                                 </td>
-                                <td className="border px-4 py-3 text-center">{team.teamName}</td>
-                                <td className="border px-4 py-3 text-center">{team.tableNumber}</td>
+                                <td className="border px-4 py-3 text-center">{team.name}</td>
+                                <td className="border px-4 py-3 text-center">{team.table_number}</td>
                                 <td className="border px-4 py-3 text-center">
-                                    {team.registeredParticipants}
-                                </td>
-                                <td className="border px-4 py-3 text-center">
-                                    {team.actualParticipants}
+                                    {team.players_count}
                                 </td>
                                 <td className="border px-4 py-3 flex">
                                     <button
@@ -231,57 +308,47 @@ const TeamsTab: React.FC = () => {
                 </table>
             </div>
 
-            {/* Модальное окно для добавления/редактирования команды */}
+            {/* Modal for adding/editing team */}
             {isModalOpen && (
                 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
                     <h2 className="text-2xl font-bold mb-6 text-center mt-20">
                         {currentTeam ? 'Редактирование команды' : 'Добавление команды'}
                     </h2>
                     <form className="flex flex-col space-y-4">
-                        {/* Номер планшета */}
-                        <div className="flex flex-col md:flex-row items-start md:items-center">
-                            <label
-                                htmlFor="tabletNumber"
-                                className="w-full md:w-1/3 text-left md:text-right mr-4 font-medium"
-                            >
-                                Номер планшета:
-                            </label>
-                            <div className="w-full md:w-2/3">
-                                <input
-                                    type="number"
-                                    id="tabletNumber"
-                                    placeholder="Введите номер планшета"
-                                    value={
-                                        currentTeam
-                                            ? currentTeam.tabletNumber || ''
-                                            : newTeam.tabletNumber || ''
-                                    }
-                                    onChange={(e) => {
-                                        const value = Number(e.target.value);
-                                        if (currentTeam) {
-                                            setCurrentTeam({
-                                                ...currentTeam,
-                                                tabletNumber: value,
-                                            });
-                                        } else {
-                                            setNewTeam({
-                                                ...newTeam,
-                                                tabletNumber: value,
-                                            });
-                                        }
-                                    }}
-                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
-                                        errors.tabletNumber ? 'border-red-500' : ''
-                                    }`}
-                                />
-                                {errors.tabletNumber && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {errors.tabletNumber}
-                                    </p>
-                                )}
+                        {/* User (Tablet) */}
+                        {!currentTeam && (
+                            <div className="flex flex-col md:flex-row items-start md:items-center">
+                                <label
+                                    htmlFor="user_id"
+                                    className="w-full md:w-1/3 text-left md:text-right mr-4 font-medium"
+                                >
+                                    Пользователь (Планшет):
+                                </label>
+                                <div className="w-full md:w-2/3">
+                                    <select
+                                        id="user_id"
+                                        value={newTeam.user_id}
+                                        onChange={(e) => {
+                                            setNewTeam({ ...newTeam, user_id: e.target.value });
+                                        }}
+                                        className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                            errors.user_id ? 'border-red-500' : ''
+                                        }`}
+                                    >
+                                        <option value="">Выберите пользователя</option>
+                                        {users.map((user) => (
+                                            <option key={user.id} value={user.id}>
+                                                {user.username} ({user.name})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.user_id && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.user_id}</p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                        {/* Название команды */}
+                        )}
+                        {/* Team Name */}
                         <div className="flex flex-col md:flex-row items-start md:items-center">
                             <label
                                 htmlFor="teamName"
@@ -294,27 +361,27 @@ const TeamsTab: React.FC = () => {
                                     type="text"
                                     id="teamName"
                                     placeholder="Введите название команды"
-                                    value={currentTeam ? currentTeam.teamName : newTeam.teamName}
+                                    value={currentTeam ? currentTeam.name : newTeam.name}
                                     onChange={(e) => {
                                         if (currentTeam) {
                                             setCurrentTeam({
                                                 ...currentTeam,
-                                                teamName: e.target.value,
+                                                name: e.target.value,
                                             });
                                         } else {
-                                            setNewTeam({ ...newTeam, teamName: e.target.value });
+                                            setNewTeam({ ...newTeam, name: e.target.value });
                                         }
                                     }}
                                     className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
-                                        errors.teamName ? 'border-red-500' : ''
+                                        errors.name ? 'border-red-500' : ''
                                     }`}
                                 />
-                                {errors.teamName && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.teamName}</p>
+                                {errors.name && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.name}</p>
                                 )}
                             </div>
                         </div>
-                        {/* Номер стола */}
+                        {/* Table Number */}
                         <div className="flex flex-col md:flex-row items-start md:items-center">
                             <label
                                 htmlFor="tableNumber"
@@ -329,118 +396,32 @@ const TeamsTab: React.FC = () => {
                                     placeholder="Введите номер стола"
                                     value={
                                         currentTeam
-                                            ? currentTeam.tableNumber || ''
-                                            : newTeam.tableNumber || ''
+                                            ? currentTeam.table_number || ''
+                                            : newTeam.table_number || ''
                                     }
                                     onChange={(e) => {
                                         const value = Number(e.target.value);
                                         if (currentTeam) {
                                             setCurrentTeam({
                                                 ...currentTeam,
-                                                tableNumber: value,
+                                                table_number: value,
                                             });
                                         } else {
-                                            setNewTeam({ ...newTeam, tableNumber: value });
+                                            setNewTeam({ ...newTeam, table_number: value });
                                         }
                                     }}
                                     className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
-                                        errors.tableNumber ? 'border-red-500' : ''
+                                        errors.table_number ? 'border-red-500' : ''
                                     }`}
                                 />
-                                {errors.tableNumber && (
+                                {errors.table_number && (
                                     <p className="text-red-500 text-sm mt-1">
-                                        {errors.tableNumber}
+                                        {errors.table_number}
                                     </p>
                                 )}
                             </div>
                         </div>
-                        {/* Зарегистрировано участников */}
-                        <div className="flex flex-col md:flex-row items-start md:items-center">
-                            <label
-                                htmlFor="registeredParticipants"
-                                className="w-full md:w-1/3 text-left md:text-right mr-4 font-medium"
-                            >
-                                Зарегистрировано участников:
-                            </label>
-                            <div className="w-full md:w-2/3">
-                                <input
-                                    type="number"
-                                    id="registeredParticipants"
-                                    placeholder="Введите количество"
-                                    value={
-                                        currentTeam
-                                            ? currentTeam.registeredParticipants || ''
-                                            : newTeam.registeredParticipants || ''
-                                    }
-                                    onChange={(e) => {
-                                        const value = Number(e.target.value);
-                                        if (currentTeam) {
-                                            setCurrentTeam({
-                                                ...currentTeam,
-                                                registeredParticipants: value,
-                                            });
-                                        } else {
-                                            setNewTeam({
-                                                ...newTeam,
-                                                registeredParticipants: value,
-                                            });
-                                        }
-                                    }}
-                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
-                                        errors.registeredParticipants ? 'border-red-500' : ''
-                                    }`}
-                                />
-                                {errors.registeredParticipants && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {errors.registeredParticipants}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                        {/* Фактически участников */}
-                        <div className="flex flex-col md:flex-row items-start md:items-center mb-10">
-                            <label
-                                htmlFor="actualParticipants"
-                                className="w-full md:w-1/3 text-left md:text-right mr-4 font-medium"
-                            >
-                                Фактически участников:
-                            </label>
-                            <div className="w-full md:w-2/3">
-                                <input
-                                    type="number"
-                                    id="actualParticipants"
-                                    placeholder="Введите количество"
-                                    value={
-                                        currentTeam
-                                            ? currentTeam.actualParticipants || ''
-                                            : newTeam.actualParticipants || ''
-                                    }
-                                    onChange={(e) => {
-                                        const value = Number(e.target.value);
-                                        if (currentTeam) {
-                                            setCurrentTeam({
-                                                ...currentTeam,
-                                                actualParticipants: value,
-                                            });
-                                        } else {
-                                            setNewTeam({
-                                                ...newTeam,
-                                                actualParticipants: value,
-                                            });
-                                        }
-                                    }}
-                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
-                                        errors.actualParticipants ? 'border-red-500' : ''
-                                    }`}
-                                />
-                                {errors.actualParticipants && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {errors.actualParticipants}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                        {/* Кнопки сохранения и отмены */}
+                        {/* Buttons */}
                         <div className="flex justify-center space-x-4 mt-6  pb-20 px-[200px]">
                             <button
                                 type="button"

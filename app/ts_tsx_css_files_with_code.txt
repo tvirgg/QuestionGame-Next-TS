@@ -38,35 +38,15 @@ body {
   font-style: normal;
 }
 
-.font-bold {
-  font-weight: 700;
-}
-
-.font-semibold {
-  font-weight: 600;
-}
-
-.font-light {
-  font-weight: 300;
-}
-
-.italic {
-  font-style: italic;
-}
 
 File: layout.tsx
 import localFont from "next/font/local";
 import "./globals.css";
 
-// Подключаем каждый вес и стиль
+// Подключаем каждый вес и стиль, который вам нужен
 const mulishRegular = localFont({
   src: "./fonts/Mulish-Regular.ttf",
   variable: "--font-mulish-regular",
-});
-
-const mulishItalic = localFont({
-  src: "./fonts/Mulish-Italic.ttf",
-  variable: "--font-mulish-italic",
 });
 
 const mulishLight = localFont({
@@ -74,22 +54,15 @@ const mulishLight = localFont({
   variable: "--font-mulish-light",
 });
 
-const mulishLightItalic = localFont({
-  src: "./fonts/Mulish-LightItalic.ttf",
-  variable: "--font-mulish-light-italic",
-});
-
 const mulishBold = localFont({
   src: "./fonts/Mulish-Bold.ttf",
   variable: "--font-mulish-bold",
 });
 
-const mulishBoldItalic = localFont({
-  src: "./fonts/Mulish-BoldItalic.ttf",
-  variable: "--font-mulish-bold-italic",
+const mulishSemiBold = localFont({
+  src: "./fonts/Mulish-SemiBold.ttf",
+  variable: "--font-mulish-semibold",
 });
-
-// Добавьте другие веса и стили аналогичным образом
 
 export default function RootLayout({
   children,
@@ -99,13 +72,14 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body
-        className={`${mulishRegular.variable} ${mulishItalic.variable} ${mulishLight.variable} ${mulishLightItalic.variable} ${mulishBold.variable} ${mulishBoldItalic.variable} antialiased`}
+        className={`${mulishRegular.variable} ${mulishLight.variable} ${mulishBold.variable} ${mulishSemiBold.variable} antialiased`}
       >
         {children}
       </body>
     </html>
   );
 }
+
 
 File: page.tsx
 "use client"; // Ensure this is a Client Component
@@ -3240,9 +3214,9 @@ export default LotteryForm;
 
 File: MenuGrid.tsx
 "use client";
-import React, { useState } from 'react';
-import { FaUserShield } from 'react-icons/fa'; // Сохраняем импорт FaUserShield
-import Modal from './Modal';
+import React, { useState, useEffect } from 'react';
+import { FaUserShield } from 'react-icons/fa'; // Retain FaUserShield import
+import Modal from './Modal'; // Existing Modal for other uses
 import LotteryForm from './LotteryForm';
 import PlayerCountSelect from './PlayerCountSelect';
 import PaymentOptions from './PaymentOptions';
@@ -3250,19 +3224,19 @@ import CardInputForm from './CardInputForm';
 
 type MenuItem = {
     name: string;
-    icon: React.ComponentType<{ className?: string }> | string; // Иконка может быть компонентом или строкой
+    icon: React.ComponentType<{ className?: string }> | string; // Icon can be a component or a string
     href?: string;
     action?: string;
 };
 
 const menuItems: MenuItem[] = [
-    { name: 'Правила игры', icon: 'Info.svg', href: '/rules' }, // Используем Info.svg для "Правила игры"
+    { name: 'Правила игры', icon: 'Info.svg', href: '/rules' },
     { name: 'Результаты игры', icon: 'Game_results.svg', href: '/results' },
     { name: 'Рейтинг команд', icon: 'Team_rating.svg', href: '/rating' },
     { name: 'Меню ресторана', icon: 'Food_menu.svg', href: '/menu' },
     { name: 'Лотерея', icon: 'Lotery.svg', action: 'openLottery' },
     { name: 'Оплата', icon: 'Payment.svg', href: '/payment' },
-    { name: 'Хелп', icon: 'Help.svg', href: '/help' },
+    { name: 'Хелп', icon: 'Help.svg', action: 'showHelp' }, // Updated action
     { name: 'Наши контакты', icon: 'Contacts.svg', href: '/contacts' },
     { name: 'Админ ', icon: FaUserShield, href: '/admin' },
 ];
@@ -3271,6 +3245,8 @@ const MenuGrid: React.FC = () => {
     const [isLotteryOpen, setIsLotteryOpen] = useState(false);
     const [lotteryStep, setLotteryStep] = useState(1);
     const [lotteryData, setLotteryData] = useState<any>({});
+    const [isHelpOpen, setIsHelpOpen] = useState(false); // New state for Help modal
+    const [isHelpClosing, setIsHelpClosing] = useState(false); // State for fade-out
 
     const handleLotteryNext = (data: any) => {
         setLotteryData({ ...lotteryData, ...data });
@@ -3283,17 +3259,35 @@ const MenuGrid: React.FC = () => {
         setLotteryData({});
     };
 
-
     const handleMenuClick = (item: MenuItem) => {
         if (item.action === 'openLottery') {
             setIsLotteryOpen(true);
-        } else if (item.href) {
-            // Дополнительная проверка на наличие window (опционально)
-            if (typeof window !== 'undefined') {
-                window.location.href = item.href;
+        } else if (item.action === 'showHelp') {
+            if (!isHelpOpen) { // Prevent multiple triggers
+                setIsHelpOpen(true);
             }
+        } else if (item.href) {
+            window.location.href = item.href;
         }
     };
+
+    // Effect to auto-close the Help modal after 3 seconds with fade-out
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (isHelpOpen) {
+            timer = setTimeout(() => {
+                setIsHelpClosing(true);
+                // Wait for the fade-out animation to complete before hiding
+                setTimeout(() => {
+                    setIsHelpOpen(false);
+                    setIsHelpClosing(false);
+                }, 300); // Duration should match the fade-out animation duration
+            }, 3000);
+        }
+        return () => {
+            if (timer) clearTimeout(timer);
+        };
+    }, [isHelpOpen]);
 
     return (
         <>
@@ -3308,7 +3302,7 @@ const MenuGrid: React.FC = () => {
                             <img
                                 src={`/${item.icon}`}
                                 alt={item.name}
-                                className="icon text-[#f4c542] text-3xl mb-2 w-[80px] h-[80px]" // Настройте размеры по необходимости
+                                className="icon text-[#f4c542] text-3xl mb-2 w-[80px] h-[80px]" // Adjust size as needed
                             />
                         ) : (
                             <item.icon className="icon text-[#f4c542] text-3xl mb-2 w-12 h-12" />
@@ -3317,13 +3311,15 @@ const MenuGrid: React.FC = () => {
                     </div>
                 ))}
             </div>
+
+            {/* Lottery Modal */}
             {isLotteryOpen && (
                 <Modal isOpen={isLotteryOpen} onClose={handleLotteryClose}>
                     {lotteryStep === 1 && <LotteryForm onNext={handleLotteryNext} />}
                     {lotteryStep === 2 && <PlayerCountSelect onNext={handleLotteryNext} />}
                     {lotteryStep === 3 && (
                         <PaymentOptions
-                            amount={lotteryData.playerCount * 100 || 100} // Пример суммы
+                            amount={lotteryData.playerCount * 100 || 100} // Example amount
                             pricePerPlayer={100} // Assuming 100 is the price per player
                             onBack={() => setLotteryStep(lotteryStep - 1)}
                             onNext={() => setLotteryStep(lotteryStep + 1)}
@@ -3332,6 +3328,52 @@ const MenuGrid: React.FC = () => {
                     {lotteryStep === 4 && <CardInputForm onSubmit={handleLotteryClose} />}
                 </Modal>
             )}
+
+            {/* Custom Help Modal with Fade-Out */}
+            {isHelpOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-300 text-center">
+                    <div
+                        className={`bg-green-500 h-[320px] rounded-lg shadow-lg p-6 ${isHelpClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+                        role="alert"
+                        aria-live="assertive"
+                    >
+                        <p className="text-white text-[40px] pt-20">Помощь уже в пути! <br /> Ожидайте</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Animation Styles */}
+            <style jsx>{`
+                .animate-fade-in {
+                    animation: fadeIn 0.3s ease-in-out;
+                }
+
+                .animate-fade-out {
+                    animation: fadeOut 0.3s ease-in-out;
+                }
+
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                        transform: scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
+
+                @keyframes fadeOut {
+                    from {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                    to {
+                        opacity: 0;
+                        transform: scale(0.95);
+                    }
+                }
+            `}</style>
         </>
     );
 };
@@ -3373,6 +3415,173 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 };
 
 export default Modal;
+
+
+File: PaymentMain.tsx
+"use client";
+import React, { useState } from 'react';
+
+interface PaymentOptionsProps {
+    amount: number;
+    pricePerPlayer: number;
+    onBack: () => void;
+    onNext: () => void;
+}
+
+const PaymentMain: React.FC<PaymentOptionsProps> = ({ amount, pricePerPlayer, onBack, onNext }) => {
+    const [method, setMethod] = useState<'qr' | 'card'>('qr');
+    const [cardNumber, setCardNumber] = useState('');
+    const [expiryDate, setExpiryDate] = useState('');
+    const [cvv, setCvv] = useState('');
+    const [errors, setErrors] = useState<{ cardNumber?: string; expiryDate?: string; cvv?: string }>({});
+
+    const validateCardDetails = () => {
+        const newErrors: { cardNumber?: string; expiryDate?: string; cvv?: string } = {};
+
+        // Валидация номера карты (16 цифр)
+        if (!/^\d{16}$/.test(cardNumber.replace(/\s+/g, ''))) {
+            newErrors.cardNumber = 'Введите корректный номер карты (16 цифр).';
+        }
+
+        // Валидация даты (формат MM/YY)
+        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryDate)) {
+            newErrors.expiryDate = 'Введите корректную дату в формате MM/YY.';
+        }
+
+        // Валидация CVV (3 цифры)
+        if (!/^\d{3}$/.test(cvv)) {
+            newErrors.cvv = 'Введите корректный CVV (3 цифры).';
+        }
+
+        setErrors(newErrors);
+
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handlePayment = () => {
+        if (validateCardDetails()) {
+            onNext();
+        }
+    };
+
+    const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/\D/g, ''); // Удаляем все нецифровые символы
+        if (value.length <= 16) {
+            setCardNumber(value);
+        }
+    };
+
+    const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let value = e.target.value.replace(/\D/g, ''); // Удаляем все нецифровые символы
+        if (value.length > 4) {
+            value = value.slice(0, 4);
+        }
+
+        if (value.length > 2) {
+            value = `${value.slice(0, 2)}/${value.slice(2)}`;
+        }
+
+        setExpiryDate(value);
+    };
+
+    const handleCvvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/\D/g, ''); // Удаляем все нецифровые символы
+        if (value.length <= 3) {
+            setCvv(value);
+        }
+    };
+
+    return (
+        <div className="mt-[80px] p-4rounded-lg mx-auto w-[760px] pb-20">
+            <h2 className="text-[45px] font-bold text-black leading-[1.1] w-full">
+                Вы можете оплатить любым <br /> удобным для вас способом
+            </h2>
+            <div className="flex justify-start items-baseline mb-[40px] text-2xl font-semibold mt-[40px]">
+                <div className="flex items-baseline">
+                    <span className="text-[36px] font-regular text-black">5600 ₽</span>
+                    <span className="ml-3 text-[24px] font-normal text-gray-500">к оплате</span>
+                </div>
+                <div className="flex items-baseline ml-20">
+                    <span className="text-[36px] font-regular text-black">700 ₽</span>
+                    <span className="ml-3 text-[24px] font-normal text-gray-500">цена за 1 человека</span>
+                </div>
+            </div>
+            <div className="flex border-b border-gray-300 mb-4 w-[460px]">
+                <button
+                    className={`flex-1 text-left py-2 font-semibold pl-4 ${
+                        method === 'qr' ? 'text-[#CC9F33] border-b-2 border-[#CC9F33]' : 'text-gray-500'
+                    }`}
+                    onClick={() => setMethod('qr')}
+                >
+                    Оплата QR кодом
+                </button>
+                <button
+                    className={`flex-1 text-center py-2 font-semibold ${
+                        method === 'card' ? 'text-[#CC9F33] border-b-2 border-[#CC9F33]' : 'text-gray-500'
+                    }`}
+                    onClick={() => setMethod('card')}
+                >
+                    Банковской картой
+                </button>
+            </div>
+            {method === 'qr' ? (
+                <div className="flex flex-col items-start mb-4 h-[230px] w-[460px]">
+                    <img src="/qr.png" alt="QR Code" className="w-40 h-40 mt-[10px]" />
+                    <button
+                        onClick={onNext}
+                        className=" w-[460px] bg-[#CC9F33] text-white py-3 rounded-lg font-semibold hover:bg-[#b28d2a] block mt-[20px]"
+                    >
+                        оплатить
+                    </button>
+                </div>
+            ) : (
+                <div className="mb-4 w-[460px]">
+                    <p className="text-[16px] mb-2 font-bold">Заполните данные своей карты</p>
+                    <div className="mb-2">
+                        <input
+                            type="text"
+                            placeholder="Номер карты"
+                            className={`w-full border ${errors.cardNumber ? 'border-red-500' : 'border-gray-300'} p-2 rounded-lg mb-1 placeholder-black focus:outline-none focus:ring-2 focus:ring-[#CC9F33]`}
+                            value={cardNumber}
+                            onChange={handleCardNumberChange}
+                        />
+                        {errors.cardNumber && <p className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>}
+                    </div>
+                    <div className="flex space-x-2 mb-2">
+                        <div className="flex-1">
+                            <input
+                                type="text"
+                                placeholder="Месяц / год"
+                                className={`w-full border ${errors.expiryDate ? 'border-red-500' : 'border-gray-300'} p-2 rounded-lg mb-1 placeholder-black focus:outline-none focus:ring-2 focus:ring-[#CC9F33]`}
+                                value={expiryDate}
+                                onChange={handleExpiryDateChange}
+                            />
+                            {errors.expiryDate && <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>}
+                        </div>
+                        <div className="w-1/3">
+                            <input
+                                type="text"
+                                placeholder="CVV"
+                                className={`w-full border ${errors.cvv ? 'border-red-500' : 'border-gray-300'} p-2 rounded-lg mb-1 placeholder-black focus:outline-none focus:ring-2 focus:ring-[#CC9F33]`}
+                                value={cvv}
+                                onChange={handleCvvChange}
+                            />
+                            {errors.cvv && <p className="text-red-500 text-sm mt-1">{errors.cvv}</p>}
+                        </div>
+                    </div>
+                    <button
+                        onClick={handlePayment}
+                        className="w-full bg-[#CC9F33] text-white py-3 rounded-lg font-semibold hover:bg-[#b28d2a] block mt-[20px]"
+                    >
+                        оплатить
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default PaymentMain;
 
 
 File: PaymentOptions.tsx
@@ -3757,9 +3966,9 @@ import React from 'react';
 const RulesContent: React.FC = () => {
     return (
         <div className="rules-page text-[#333333] rounded-3xl max-w-2xl pt-[50px] pl-[90px]">
-            <h1 className="font-bold text-[58px] mb-6">Правила игры</h1>
-            <p className="mb-6 text-bold text-[40px] whitespace-nowrap">
-                Вас ждут <span className="font-semibold">7 раундов</span> с небольшими <br /> перерывами после 3 и 6 раундов.
+            <h1 className="font-semibold text-[58px] mb-6">Правила игры</h1>
+            <p className="mb-6 font-regular text-[40px] whitespace-nowrap">
+                Вас ждут <span className="">7 раундов</span> с небольшими <br /> перерывами после 3 и 6 раундов.
             </p>
 
             <p className="mb-4 text-[23px] whitespace-nowrap">
@@ -3799,9 +4008,13 @@ import Link from 'next/link';
 
 const StartButton: React.FC = () => {
     return (
-        <Link href="/game">
+        <Link href="/">
             <button className="start-button text-[#f4c542] text-[70px] font-bold border-none cursor-pointer transition-colors duration-200 hover:text-[#d2a636]">
-                ИГРА
+            <img
+                        src="/logo.png"
+                        alt="House icon"
+                        className="mt-6"
+                    />
             </button>
         </Link>
     );
@@ -3866,16 +4079,16 @@ const TeamRatingTable: React.FC = () => {
                                 index % 2 === 0 ? 'bg-white' : 'bg-[#FFF5E1]'
                             } hover:bg-gray-200 transition-colors duration-200 font-regular text-[26px] `}
                         >
-                            <td className="border px-4 py-3 pl-9 h-[82px] w-[340px]">{team.name}</td>
-                            <td className="border px-4 py-3 pl-9 h-[76px text-left">{team.round1}</td>
-                            <td className="border px-4 py-3 pl-9 h-[76px] text-left">{team.round2}</td>
-                            <td className="border px-4 py-3 pl-9 h-[76px] text-left">{team.round3}</td>
-                            <td className="border px-4 py-3 pl-9 h-[76px] text-left">{team.round4}</td>
-                            <td className="border px-4 py-3 pl-9 h-[76px] text-left">{team.round5}</td>
-                            <td className="border px-4 py-3 pl-9 h-[76px] text-left">{team.round6}</td>
-                            <td className="border px-4 py-3 pl-9 h-[76px] text-left">{team.round7}</td>
-                            <td className="border px-4 py-3 pl-9 h-[76px] text-left">{team.place}</td>
-                            <td className="border px-4 py-3 pl-9 h-[76px] text-left">{team.total}</td>
+                            <td className="border px-4 py-3 pl-9 h-[75px] w-[340px]">{team.name}</td>
+                            <td className="border px-4 py-3 pl-9 h-[75px text-left">{team.round1}</td>
+                            <td className="border px-4 py-3 pl-9 h-[75px] text-left">{team.round2}</td>
+                            <td className="border px-4 py-3 pl-9 h-[75px] text-left">{team.round3}</td>
+                            <td className="border px-4 py-3 pl-9 h-[75px] text-left">{team.round4}</td>
+                            <td className="border px-4 py-3 pl-9 h-[75px] text-left">{team.round5}</td>
+                            <td className="border px-4 py-3 pl-9 h-[75px] text-left">{team.round6}</td>
+                            <td className="border px-4 py-3 pl-9 h-[75px] text-left">{team.round7}</td>
+                            <td className="border px-4 py-3 pl-9 h-[75px] text-left">{team.place}</td>
+                            <td className="border px-4 py-3 pl-9 h-[75px] text-left">{team.total}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -3945,16 +4158,16 @@ const TeamResultTable: React.FC = () => {
                             } hover:bg-gray-200 transition-colors duration-200 font-regular text-[26px] `}
                         >
                             {/* Новая ячейка "Место" */}
-                            <td className="border px-4 py-3 pl-8 w-[80px]">{index + 1}</td>
+                            <td className="border px-4 py-3 pl-8 w-[75px]">{index + 1}</td>
                             <td className="border px-4 py-3 pl-8 w-[340px]">{team.name}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.total}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round1}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round2}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round3}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round4}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round5}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round6}</td>
-                            <td className="border px-4 py-3 pl-8 h-[80px] text-left">{team.round7}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.total}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round1}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round2}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round3}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round4}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round5}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round6}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round7}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -4441,26 +4654,36 @@ export default MenuPage;
 
 
 File: page.tsx
-
 "use client";
-import React from 'react';
-import TeamRatingTable from '../components/TeamResultTable';
+import React, { useState } from 'react';
 import ReturnButton from '../components/ReturnButton';
+import PaymentMain from '../components/PaymentMain';
 
-const RatingPage: React.FC = () => {
+const PayPage: React.FC = () => {
+    const [isModalOpen, setIsModalOpen] = useState(true);
+    const [step, setStep] = useState(1);
+    const [formData, setFormData] = useState<any>({});
+    const handleClose = () => {
+        setIsModalOpen(false);
+    };
+
     return (
-        <div className="w-screen h-screen bg-[#14213D] text-white flex flex-col p-4">
-            <h1 className="text-[69px] font-semibold mt-[70px] pl-[140px]">Рейтинг команд</h1>
-            <TeamRatingTable />
-            <div className="mx-auto">
+        <div className="w-screen h-screen bg-[#1c2536] text-white flex flex-col pb-10">
+            <div className="mx-auto w-[45%] bg-white mt-[20vh] rounded-[30px]">
+                <PaymentMain
+                                amount={700} // Пример суммы
+                                onNext={() => setStep(step + 1)} pricePerPlayer={0} onBack={function (): void {
+                                    throw new Error('Function not implemented.');
+                                } } />
+            </div>
+            <div className="mx-auto mt-20">
                 <ReturnButton />
             </div>
         </div>
     );
 };
 
-export default RatingPage;
-
+export default PayPage;
 
 File: page.tsx
 

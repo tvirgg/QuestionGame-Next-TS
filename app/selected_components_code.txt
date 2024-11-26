@@ -1,0 +1,2649 @@
+File: AdminMain.tsx
+
+"use client";
+import React, { useState } from 'react';
+import CreateGame from './CreateGame';
+import CreateVenue from './CreateVenue';
+import TeamsTab from './TeamsTab';
+import RolesTab from './RolesTab';
+import ScoreCountingTab from './ScoreCountingTab';
+import PaymentsTab from './PaymentsTab';
+import LotteryTab from './LotteryTab';
+import PlayersTab from './Users';
+
+const AdminMain: React.FC = () => {
+    const [activeTab, setActiveTab] = useState<string>('Создание игры');
+
+    const renderTabContent = () => {
+        switch(activeTab) {
+            case 'Создание игры':
+                return <CreateGame />;
+            case 'Создание места проведения':
+                return <CreateVenue />;
+            case 'Команды':
+                return <TeamsTab />;
+            case 'Роли':
+                return <RolesTab />;
+            case 'Игроки':
+                    return <PlayersTab />;
+            case 'Подсчёт очков':
+                return <ScoreCountingTab />;
+            case 'Оплаты':
+                return <PaymentsTab />;
+            case 'Лотерея':
+                return <LotteryTab />;
+            default:
+                return <CreateGame />;
+        }
+    };
+
+    return (
+        <div className="w-screen h-screen bg-[#14213D] text-white flex flex-col items-center p-4">
+            <h1 className="text-4xl font-bold mt-8 mb-6 text-center">Интерфейс Администратора</h1>
+            <div className="tabs flex space-x-4 mb-6">
+                {['Создание игры', 'Создание места проведения', 'Команды', 'Роли', 'Игроки', 'Подсчёт очков', 'Оплаты', 'Лотерея'].map((tab) => (
+                    <button
+                        key={tab}
+                        className={`px-4 py-2 rounded ${
+                            activeTab === tab ? 'bg-[#D4A373] text-black' : 'bg-[#1b2a49] hover:bg-[#2e3a50]'
+                        } transition-colors duration-200`}
+                        onClick={() => setActiveTab(tab)}
+                    >
+                        {tab}
+                    </button>
+                ))}
+            </div>
+            <div className="flex-grow w-full max-w-7xl">
+                {renderTabContent()}
+            </div>
+        </div>
+    );
+};
+
+export default AdminMain;
+
+
+File: CreateGame.tsx
+"use client";
+import React, { useState, useRef } from 'react';
+
+const CreateGame: React.FC = () => {
+    const [gameName, setGameName] = useState('');
+    const [gameDate, setGameDate] = useState('');
+    const [gameNumber, setGameNumber] = useState('');
+    const [restaurant, setRestaurant] = useState('');
+    const [teams, setTeams] = useState<string[]>([]);
+    const [file, setFile] = useState<File | null>(null);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setFile(e.target.files[0]);
+        }
+    };
+
+    const handleCreateGame = () => {
+        // Логика создания игры
+        console.log({
+            gameName,
+            gameDate,
+            gameNumber,
+            restaurant,
+            teams,
+            file
+        });
+    };
+
+    const handleFileButtonClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    return (
+        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg text-center py-20">
+            <h2 className="text-2xl font-bold mb-4">Создание игры</h2>
+            <div className="flex flex-col space-y-4 items-center">
+                <input
+                    type="text"
+                    placeholder="Название игры"
+                    value={gameName}
+                    onChange={(e) => setGameName(e.target.value)}
+                    className="p-2 rounded border w-2/3"
+                />
+                <input
+                    type="date"
+                    value={gameDate}
+                    onChange={(e) => setGameDate(e.target.value)}
+                    className="p-2 rounded border w-2/3"
+                />
+                <input
+                    type="number"
+                    placeholder="Номер игры"
+                    value={gameNumber}
+                    onChange={(e) => setGameNumber(e.target.value)}
+                    className="p-2 rounded border w-2/3"
+                />
+                <select
+                    value={restaurant}
+                    onChange={(e) => setRestaurant(e.target.value)}
+                    className="p-2 rounded border w-2/3"
+                >
+                    <option value="">Выберите ресторан</option>
+                    <option value="Ресторан А">Ресторан А</option>
+                    <option value="Ресторан Б">Ресторан Б</option>
+                    <option value="Ресторан В">Ресторан В</option>
+                </select>
+                <div className="w-2/3">
+                    {/* <label className="block mb-1 font-medium">Загрузить файл</label> */}
+                    <div className="flex items-center space-x-2">
+                        <button
+                            type="button"
+                            onClick={handleFileButtonClick}
+                            className="flex items-center px-3 py-2 bg-[#D4A373] text-white rounded hover:bg-[#c99b6d] transition-colors duration-200"
+                        >
+                            {/* Новая SVG-иконка загрузки файла */}
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5 mr-2"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                            >
+                                <path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.34v6h6V9h3.33L12 2z" />
+                            </svg>
+                            Выбрать файл
+                        </button>
+                        {file && <span className="text-sm text-gray-700">{file.name}</span>}
+                    </div>
+                    <input
+                        type="file"
+                        accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                        onChange={handleFileUpload}
+                        ref={fileInputRef}
+                        className="hidden"
+                    />
+                </div>
+                <button
+                    className="w-2/3 bg-[#D4A373] text-white py-2 rounded hover:bg-[#c99b6d] transition-colors duration-200"
+                    onClick={handleCreateGame}
+                >
+                    Создать игру
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default CreateGame;
+
+
+File: CreateVenue.tsx
+"use client";
+import React, { useState, ChangeEvent } from 'react';
+import {
+    XIcon,
+    PlusIcon,
+    UploadIcon,
+    PencilAltIcon,
+    TrashIcon,
+    CheckIcon,
+} from '@heroicons/react/outline';
+
+// Определение структуры категории
+interface Category {
+    id: number;
+    name: string;
+}
+
+// Определение структуры блюда
+interface MenuItem {
+    id: number;
+    name: string;
+    categoryId: number;
+    price: number;
+    photo?: File | null;
+}
+
+// Определение структуры места проведения
+interface Venue {
+    id: number;
+    restaurantName: string;
+    menuItems: MenuItem[];
+    categories: Category[];
+}
+
+const CreateVenue: React.FC = () => {
+    // Инициализация состояния с предзаполненными местами
+    const [venues, setVenues] = useState<Venue[]>([
+        {
+            id: 1,
+            restaurantName: 'La Bella Italia',
+            menuItems: [
+                { id: 1, name: 'Margherita Pizza', categoryId: 1, price: 12 },
+                { id: 2, name: 'Spaghetti Carbonara', categoryId: 2, price: 15 },
+            ],
+            categories: [
+                { id: 1, name: 'Пицца' },
+                { id: 2, name: 'Паста' },
+                { id: 3, name: 'Салаты' },
+            ],
+        },
+        {
+            id: 2,
+            restaurantName: 'Sushi World',
+            menuItems: [
+                { id: 1, name: 'California Roll', categoryId: 4, price: 8 },
+                { id: 2, name: 'Salmon Sashimi', categoryId: 5, price: 14 },
+            ],
+            categories: [
+                { id: 4, name: 'Роллы' },
+                { id: 5, name: 'Сашими' },
+                { id: 6, name: 'Напитки' },
+            ],
+        },
+    ]);
+
+    // Состояние для управления модальным окном редактирования меню
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
+
+    // Состояния для добавления нового блюда в модальном окне
+    const [newMenuItem, setNewMenuItem] = useState<MenuItem>({
+        id: 0,
+        name: '',
+        categoryId: 0,
+        price: 0,
+        photo: null,
+    });
+
+    // Состояния для управления модальным окном редактирования категорий
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+
+    // Состояния для редактирования категории
+    const [localCategories, setLocalCategories] = useState<Category[]>([]);
+    const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
+    const [editingCategoryName, setEditingCategoryName] = useState<string>('');
+    const [newCategoryName, setNewCategoryName] = useState('');
+
+    // Состояния для редактирования блюда
+    const [editingMenuItemId, setEditingMenuItemId] = useState<number | null>(null);
+    const [editedMenuItem, setEditedMenuItem] = useState<MenuItem | null>(null);
+
+    // Состояния для создания нового места
+    const [newRestaurantName, setNewRestaurantName] = useState('');
+
+    // Состояние для фильтрации блюд по категории
+    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | number>('Все');
+
+    // Состояния для ошибок валидации
+    const [newRestaurantNameError, setNewRestaurantNameError] = useState('');
+    const [newMenuItemErrors, setNewMenuItemErrors] = useState({
+        name: '',
+        categoryId: '',
+        price: '',
+    });
+    const [editedMenuItemErrors, setEditedMenuItemErrors] = useState({
+        name: '',
+        categoryId: '',
+        price: '',
+    });
+    const [newCategoryNameError, setNewCategoryNameError] = useState('');
+    const [editingCategoryNameError, setEditingCategoryNameError] = useState('');
+
+    // Обработчики для создания нового места
+    const handleCreateVenue = () => {
+        if (!newRestaurantName.trim()) {
+            setNewRestaurantNameError('Пожалуйста, укажите название ресторана.');
+            return;
+        } else {
+            setNewRestaurantNameError('');
+        }
+
+        const newVenue: Venue = {
+            id: Date.now(),
+            restaurantName: newRestaurantName,
+            menuItems: [],
+            categories: [],
+        };
+
+        setVenues([...venues, newVenue]);
+
+        // Сброс формы
+        setNewRestaurantName('');
+    };
+
+    // Обработчики для модального окна редактирования меню
+    const openModal = (venue: Venue) => {
+        setSelectedVenue(venue);
+        setIsModalOpen(true);
+        setSelectedCategoryFilter('Все');
+        setNewMenuItemErrors({ name: '', categoryId: '', price: '' });
+        setEditedMenuItemErrors({ name: '', categoryId: '', price: '' });
+    };
+
+    const closeModal = () => {
+        setSelectedVenue(null);
+        setIsModalOpen(false);
+        setNewMenuItem({ id: 0, name: '', categoryId: 0, price: 0, photo: null });
+        setEditingMenuItemId(null);
+        setEditedMenuItem(null);
+        setNewMenuItemErrors({ name: '', categoryId: '', price: '' });
+        setEditedMenuItemErrors({ name: '', categoryId: '', price: '' });
+    };
+
+    // Обработчик для добавления нового блюда
+    const handleAddMenuItem = () => {
+        if (selectedVenue) {
+            const errors = { name: '', categoryId: '', price: '' };
+
+            if (!newMenuItem.name.trim()) {
+                errors.name = 'Пожалуйста, укажите название блюда.';
+            }
+
+            if (!newMenuItem.categoryId) {
+                errors.categoryId = 'Пожалуйста, выберите категорию.';
+            }
+
+            if (newMenuItem.price <= 0) {
+                errors.price = 'Пожалуйста, укажите цену больше 0.';
+            }
+
+            if (errors.name || errors.categoryId || errors.price) {
+                setNewMenuItemErrors(errors);
+                return;
+            } else {
+                setNewMenuItemErrors({ name: '', categoryId: '', price: '' });
+            }
+
+            const updatedMenuItems = [
+                ...selectedVenue.menuItems,
+                { ...newMenuItem, id: Date.now() },
+            ];
+            const updatedVenue = { ...selectedVenue, menuItems: updatedMenuItems };
+            const updatedVenues = venues.map((venue) =>
+                venue.id === selectedVenue.id ? updatedVenue : venue
+            );
+            setVenues(updatedVenues);
+            setSelectedVenue(updatedVenue);
+            // Сброс формы
+            setNewMenuItem({ id: 0, name: '', categoryId: 0, price: 0, photo: null });
+        }
+    };
+
+    // Обработчик для удаления блюда
+    const handleDeleteMenuItem = (menuItemId: number) => {
+        if (selectedVenue) {
+            const updatedMenuItems = selectedVenue.menuItems.filter(
+                (item) => item.id !== menuItemId
+            );
+            const updatedVenue = { ...selectedVenue, menuItems: updatedMenuItems };
+            const updatedVenues = venues.map((venue) =>
+                venue.id === selectedVenue.id ? updatedVenue : venue
+            );
+            setVenues(updatedVenues);
+            setSelectedVenue(updatedVenue);
+        }
+    };
+
+    // Обработчики для редактирования блюда
+    const handleEditMenuItem = (menuItem: MenuItem) => {
+        setEditingMenuItemId(menuItem.id);
+        setEditedMenuItem({ ...menuItem });
+        setEditedMenuItemErrors({ name: '', categoryId: '', price: '' });
+    };
+
+    const handleSaveEditedMenuItem = () => {
+        if (selectedVenue && editedMenuItem) {
+            const errors = { name: '', categoryId: '', price: '' };
+
+            if (!editedMenuItem.name.trim()) {
+                errors.name = 'Пожалуйста, укажите название блюда.';
+            }
+
+            if (!editedMenuItem.categoryId) {
+                errors.categoryId = 'Пожалуйста, выберите категорию.';
+            }
+
+            if (editedMenuItem.price <= 0) {
+                errors.price = 'Пожалуйста, укажите цену больше 0.';
+            }
+
+            if (errors.name || errors.categoryId || errors.price) {
+                setEditedMenuItemErrors(errors);
+                return;
+            } else {
+                setEditedMenuItemErrors({ name: '', categoryId: '', price: '' });
+            }
+
+            const updatedMenuItems = selectedVenue.menuItems.map((item) =>
+                item.id === editedMenuItem.id ? editedMenuItem : item
+            );
+            const updatedVenue = { ...selectedVenue, menuItems: updatedMenuItems };
+            const updatedVenues = venues.map((venue) =>
+                venue.id === selectedVenue.id ? updatedVenue : venue
+            );
+            setVenues(updatedVenues);
+            setSelectedVenue(updatedVenue);
+            setEditingMenuItemId(null);
+            setEditedMenuItem(null);
+        }
+    };
+
+    // Обработчики для модального окна редактирования категорий
+    const openCategoryModal = () => {
+        if (selectedVenue) {
+            setLocalCategories([...selectedVenue.categories]);
+        }
+        setIsCategoryModalOpen(true);
+        setEditingCategoryId(null);
+        setEditingCategoryName('');
+        setNewCategoryName('');
+        setNewCategoryNameError('');
+        setEditingCategoryNameError('');
+    };
+
+    const closeCategoryModal = () => {
+        // Применяем изменения к selectedVenue
+        if (selectedVenue) {
+            // Обновляем список категорий
+            const updatedVenue = {
+                ...selectedVenue,
+                categories: localCategories,
+            };
+            // Удаляем блюда, связанные с удаленными категориями
+            const validCategoryIds = new Set(localCategories.map((cat) => cat.id));
+            const updatedMenuItems = updatedVenue.menuItems.filter((item) =>
+                validCategoryIds.has(item.categoryId)
+            );
+            updatedVenue.menuItems = updatedMenuItems;
+            // Обновляем состояния
+            setSelectedVenue(updatedVenue);
+            const updatedVenues = venues.map((venue) =>
+                venue.id === selectedVenue.id ? updatedVenue : venue
+            );
+            setVenues(updatedVenues);
+        }
+        setIsCategoryModalOpen(false);
+    };
+
+    const cancelCategoryModal = () => {
+        setIsCategoryModalOpen(false);
+        setEditingCategoryId(null);
+        setEditingCategoryName('');
+        setNewCategoryName('');
+        setNewCategoryNameError('');
+        setEditingCategoryNameError('');
+    };
+
+    const handleAddCategory = () => {
+        const trimmedCategory = newCategoryName.trim();
+        if (!trimmedCategory) {
+            setNewCategoryNameError('Пожалуйста, укажите название категории.');
+            return;
+        }
+        if (localCategories.some((category) => category.name === trimmedCategory)) {
+            setNewCategoryNameError('Такая категория уже существует.');
+            return;
+        }
+        setNewCategoryNameError('');
+        const newCategory: Category = {
+            id: Date.now(),
+            name: trimmedCategory,
+        };
+        setLocalCategories([...localCategories, newCategory]);
+        setNewCategoryName('');
+    };
+
+    const handleDeleteCategory = (categoryId: number) => {
+        const updatedCategories = localCategories.filter(
+            (category) => category.id !== categoryId
+        );
+        setLocalCategories(updatedCategories);
+    };
+
+    const handleSaveEditedCategory = (categoryId: number) => {
+        const trimmedName = editingCategoryName.trim();
+        if (!trimmedName) {
+            setEditingCategoryNameError('Название категории не может быть пустым.');
+            return;
+        }
+        if (
+            localCategories.some(
+                (category) => category.name === trimmedName && category.id !== categoryId
+            )
+        ) {
+            setEditingCategoryNameError('Категория с таким названием уже существует.');
+            return;
+        }
+        setEditingCategoryNameError('');
+        const updatedCategories = localCategories.map((category) =>
+            category.id === categoryId ? { ...category, name: trimmedName } : category
+        );
+        setLocalCategories(updatedCategories);
+        setEditingCategoryId(null);
+        setEditingCategoryName('');
+    };
+
+    // Обработчик для загрузки меню файлом
+    const handleFileMenuUpload = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0] && selectedVenue) {
+            const file = e.target.files[0];
+            // Здесь можно добавить логику парсинга файла
+            // Для примера добавим два блюда
+            const parsedMenuItems: MenuItem[] = [
+                {
+                    id: Date.now(),
+                    name: 'Новое блюдо 1',
+                    categoryId: selectedVenue.categories[0]?.id || 0,
+                    price: 10,
+                },
+                {
+                    id: Date.now() + 1,
+                    name: 'Новое блюдо 2',
+                    categoryId: selectedVenue.categories[1]?.id || 0,
+                    price: 20,
+                },
+            ];
+            const updatedMenuItems = [...selectedVenue.menuItems, ...parsedMenuItems];
+            const updatedVenue = { ...selectedVenue, menuItems: updatedMenuItems };
+            const updatedVenues = venues.map((venue) =>
+                venue.id === selectedVenue.id ? updatedVenue : venue
+            );
+            setVenues(updatedVenues);
+            setSelectedVenue(updatedVenue);
+        }
+    };
+
+    // Фильтрация блюд по категории
+    const filteredMenuItems = selectedVenue
+        ? selectedCategoryFilter === 'Все'
+            ? selectedVenue.menuItems
+            : selectedVenue.menuItems.filter(
+                  (item) => item.categoryId === Number(selectedCategoryFilter)
+              )
+        : [];
+
+    const currentMenuItem =
+        editingMenuItemId && editedMenuItem ? editedMenuItem : newMenuItem;
+    const currentMenuItemErrors =
+        editingMenuItemId && editedMenuItem ? editedMenuItemErrors : newMenuItemErrors;
+
+    return (
+        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg text-center py-20">
+            {/* Форма для создания нового места */}
+            <div className="flex flex-col space-y-4 mb-8 w-2/3 mx-auto">
+                <h3 className="text-xl font-semibold">Добавить новое место проведения</h3>
+                <div className="flex flex-col">
+                    <div className="flex items-center">
+                        <input
+                            type="text"
+                            placeholder="Название ресторана"
+                            value={newRestaurantName}
+                            onChange={(e) => setNewRestaurantName(e.target.value)}
+                            className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                newRestaurantNameError ? 'border-red-500' : ''
+                            }`}
+                        />
+                        <button
+                            className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 ml-4 flex items-center"
+                            onClick={handleCreateVenue}
+                        >
+                            <PlusIcon className="h-5 w-5" />
+                        </button>
+                    </div>
+                    {newRestaurantNameError && (
+                        <p className="text-red-500 text-sm mt-1">{newRestaurantNameError}</p>
+                    )}
+                </div>
+            </div>
+
+            {/* Список существующих мест */}
+            <div className="w-2/3 mx-auto">
+                <h3 className="text-xl font-semibold mb-4">Список мест проведения</h3>
+                {venues.length === 0 ? (
+                    <p>Нет доступных мест проведения.</p>
+                ) : (
+                    <ul className="space-y-2">
+                        {venues.map((venue) => (
+                            <li
+                                key={venue.id}
+                                className="flex justify-between items-center p-4 bg-white rounded shadow cursor-pointer hover:bg-gray-100"
+                                onClick={() => openModal(venue)}
+                            >
+                                <span className="font-medium">{venue.restaurantName}</span>
+                                <span className="text-sm text-gray-500">
+                                    {venue.menuItems.length} блюд
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+
+            {/* Модальное окно для редактирования меню места */}
+            {isModalOpen && selectedVenue && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+                    <div className="bg-[#FFF8E1] rounded-lg w-2/4 p-6 relative shadow-lg overflow-y-auto max-h-screen py-20 px-[100px]">
+                        {/* Кнопка закрытия модального окна */}
+                        <button
+                            className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+                            onClick={closeModal}
+                            aria-label="Закрыть"
+                        >
+                            {/* Иконка крестика */}
+                            <XIcon className="h-6 w-6" />
+                        </button>
+                        <h3 className="text-2xl font-semibold mb-6 text-center">
+                            Редактирование меню: {selectedVenue.restaurantName}
+                        </h3>
+
+                        {/* Селект выбора категории и кнопка редактирования категорий */}
+                        <div className="mb-6 flex items-center">
+                            <select
+                                value={selectedCategoryFilter}
+                                onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+                                className="p-2 rounded border focus:outline-none focus:ring-2 focus:ring-[#D4A373]"
+                            >
+                                <option value="Все">Все категории</option>
+                                {selectedVenue.categories.map((category) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <button
+                                className="ml-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-200 flex items-center"
+                                onClick={openCategoryModal}
+                            >
+                                <PencilAltIcon className="h-5 w-5 mr-1" />
+                                Редактировать категории
+                            </button>
+                        </div>
+
+                        {/* Кнопка для загрузки меню файлом */}
+                        <div className="mb-6 flex justify-end">
+                            <label className="flex items-center space-x-2 bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200 cursor-pointer">
+                                {/* Иконка загрузки файла */}
+                                <UploadIcon className="h-5 w-5" />
+                                <span>Добавить меню файлом</span>
+                                <input
+                                    type="file"
+                                    accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                                    onChange={handleFileMenuUpload}
+                                    className="hidden"
+                                />
+                            </label>
+                        </div>
+
+                        <div className="flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-6">
+                            {/* Список блюд */}
+                            <div className="flex-1">
+                                <h4 className="text-xl font-semibold mb-4">Список блюд</h4>
+                                {filteredMenuItems.length === 0 ? (
+                                    <p>Блюда не добавлены.</p>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {filteredMenuItems.map((item) => (
+                                            <div
+                                                key={item.id}
+                                                className="flex items-center justify-between p-4 bg-white rounded shadow"
+                                            >
+                                                <div>
+                                                    <p className="font-medium">{item.name}</p>
+                                                    <p className="text-sm text-gray-600">
+                                                        {selectedVenue.categories.find(
+                                                            (cat) => cat.id === item.categoryId
+                                                        )?.name}{' '}
+                                                        — ${item.price}
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <button
+                                                        className="text-blue-500 hover:text-blue-700"
+                                                        onClick={() => handleEditMenuItem(item)}
+                                                    >
+                                                        {/* Иконка редактирования */}
+                                                        <PencilAltIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <button
+                                                        className="text-red-500 hover:text-red-700"
+                                                        onClick={() => handleDeleteMenuItem(item.id)}
+                                                    >
+                                                        {/* Иконка удаления */}
+                                                        <TrashIcon className="h-5 w-5" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Форма для добавления нового блюда */}
+                            <div className="flex-1">
+                                <h4 className="text-xl font-semibold mb-4">
+                                    {editingMenuItemId
+                                        ? 'Редактировать блюдо'
+                                        : 'Добавить новое блюдо'}
+                                </h4>
+                                <div className="space-y-4">
+                                    <input
+                                        type="text"
+                                        placeholder="Название блюда"
+                                        value={currentMenuItem.name}
+                                        onChange={(e) => {
+                                            const name = e.target.value;
+                                            if (editingMenuItemId && editedMenuItem) {
+                                                setEditedMenuItem({
+                                                    ...editedMenuItem,
+                                                    name,
+                                                });
+                                            } else {
+                                                setNewMenuItem({
+                                                    ...newMenuItem,
+                                                    name,
+                                                });
+                                            }
+                                        }}
+                                        className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                            currentMenuItemErrors.name ? 'border-red-500' : ''
+                                        }`}
+                                    />
+                                    {currentMenuItemErrors.name && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {currentMenuItemErrors.name}
+                                        </p>
+                                    )}
+                                    <div className="flex items-center space-x-2">
+                                        <select
+                                            value={currentMenuItem.categoryId || ''}
+                                            onChange={(e) => {
+                                                const categoryId = Number(e.target.value);
+                                                if (editingMenuItemId && editedMenuItem) {
+                                                    setEditedMenuItem({
+                                                        ...editedMenuItem,
+                                                        categoryId,
+                                                    });
+                                                } else {
+                                                    setNewMenuItem({
+                                                        ...newMenuItem,
+                                                        categoryId,
+                                                    });
+                                                }
+                                            }}
+                                            className={`p-2 rounded border flex-1 focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                                currentMenuItemErrors.categoryId
+                                                    ? 'border-red-500'
+                                                    : ''
+                                            }`}
+                                        >
+                                            <option value="">Выберите категорию</option>
+                                            {selectedVenue.categories.map((category) => (
+                                                <option key={category.id} value={category.id}>
+                                                    {category.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    {currentMenuItemErrors.categoryId && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {currentMenuItemErrors.categoryId}
+                                        </p>
+                                    )}
+                                    <input
+                                        type="number"
+                                        placeholder="Цена"
+                                        value={currentMenuItem.price}
+                                        onChange={(e) => {
+                                            const price = Number(e.target.value);
+                                            if (editingMenuItemId && editedMenuItem) {
+                                                setEditedMenuItem({
+                                                    ...editedMenuItem,
+                                                    price,
+                                                });
+                                            } else {
+                                                setNewMenuItem({
+                                                    ...newMenuItem,
+                                                    price,
+                                                });
+                                            }
+                                        }}
+                                        className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                            currentMenuItemErrors.price ? 'border-red-500' : ''
+                                        }`}
+                                    />
+                                    {currentMenuItemErrors.price && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {currentMenuItemErrors.price}
+                                        </p>
+                                    )}
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        {/* Иконка загрузки фото */}
+                                        <UploadIcon className="h-6 w-6 text-gray-600" />
+                                        <span className="text-gray-600">
+                                            {currentMenuItem.photo
+                                                ? currentMenuItem.photo.name
+                                                : 'Добавить фото'}
+                                        </span>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                if (e.target.files && e.target.files[0]) {
+                                                    if (editingMenuItemId && editedMenuItem) {
+                                                        setEditedMenuItem({
+                                                            ...editedMenuItem,
+                                                            photo: e.target.files[0],
+                                                        });
+                                                    } else {
+                                                        setNewMenuItem({
+                                                            ...newMenuItem,
+                                                            photo: e.target.files[0],
+                                                        });
+                                                    }
+                                                }
+                                            }}
+                                            className="hidden"
+                                        />
+                                    </label>
+
+                                    {editingMenuItemId ? (
+                                        <div className="flex space-x-2">
+                                            <button
+                                                className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 flex items-center"
+                                                onClick={handleSaveEditedMenuItem}
+                                            >
+                                                <PencilAltIcon className="h-5 w-5 mr-1" />
+                                                Сохранить изменения
+                                            </button>
+                                            <button
+                                                className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors duration-200 flex items-center"
+                                                onClick={() => {
+                                                    setEditingMenuItemId(null);
+                                                    setEditedMenuItem(null);
+                                                    setEditedMenuItemErrors({
+                                                        name: '',
+                                                        categoryId: '',
+                                                        price: '',
+                                                    });
+                                                }}
+                                            >
+                                                <XIcon className="h-5 w-5 mr-1" />
+                                                Отмена
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            className="bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200 flex items-center"
+                                            onClick={handleAddMenuItem}
+                                        >
+                                            <PlusIcon className="h-5 w-5 mr-1" />
+                                            Добавить блюдо
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Модальное окно для редактирования категорий */}
+            {isCategoryModalOpen && selectedVenue && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+                    <div className="bg-[#FFF8E1] rounded-lg w-11/12 md:w-1/2 p-6 relative shadow-lg">
+                        {/* Кнопка закрытия модального окна */}
+                        <button
+                            className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+                            onClick={cancelCategoryModal}
+                            aria-label="Закрыть"
+                        >
+                            {/* Иконка крестика */}
+                            <XIcon className="h-6 w-6" />
+                        </button>
+                        <h3 className="text-2xl font-semibold mb-4 text-center">Категории</h3>
+
+                        {/* Форма для добавления новой категории */}
+                        <h4 className="text-xl font-semibold mb-4">Добавить новую категорию</h4>
+                        <div className="flex flex-col mb-4">
+                            <div className="flex space-x-2">
+                                <input
+                                    type="text"
+                                    placeholder="Название категории"
+                                    value={newCategoryName}
+                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        newCategoryNameError ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                <button
+                                    className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-200 flex items-center"
+                                    onClick={handleAddCategory}
+                                >
+                                    <PlusIcon className="h-5 w-5 mr-1" />
+                                    Добавить
+                                </button>
+                            </div>
+                            {newCategoryNameError && (
+                                <p className="text-red-500 text-sm mt-1">{newCategoryNameError}</p>
+                            )}
+                        </div>
+
+                        {/* Список категорий */}
+                        <h4 className="text-xl font-semibold mb-4">Список категорий</h4>
+                        {localCategories.length === 0 ? (
+                            <p>Категории не добавлены.</p>
+                        ) : (
+                            <ul className="space-y-2">
+                                {localCategories.map((category) => (
+                                    <li
+                                        key={category.id}
+                                        className="flex items-center justify-between"
+                                    >
+                                        {editingCategoryId === category.id ? (
+                                            <div className="flex items-center w-full">
+                                                <input
+                                                    type="text"
+                                                    value={editingCategoryName}
+                                                    onChange={(e) =>
+                                                        setEditingCategoryName(e.target.value)
+                                                    }
+                                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                                        editingCategoryNameError
+                                                            ? 'border-red-500'
+                                                            : ''
+                                                    }`}
+                                                />
+                                                <button
+                                                    className="text-green-500 hover:text-green-700 ml-2"
+                                                    onClick={() =>
+                                                        handleSaveEditedCategory(category.id)
+                                                    }
+                                                >
+                                                    <CheckIcon className="h-5 w-5" />
+                                                </button>
+                                                <button
+                                                    className="text-gray-500 hover:text-gray-700 ml-2"
+                                                    onClick={() => {
+                                                        setEditingCategoryId(null);
+                                                        setEditingCategoryName('');
+                                                        setEditingCategoryNameError('');
+                                                    }}
+                                                >
+                                                    <XIcon className="h-5 w-5" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <span>{category.name}</span>
+                                                <div className="flex items-center">
+                                                    <button
+                                                        className="text-blue-500 hover:text-blue-700 ml-2"
+                                                        onClick={() => {
+                                                            setEditingCategoryId(category.id);
+                                                            setEditingCategoryName(category.name);
+                                                            setEditingCategoryNameError('');
+                                                        }}
+                                                    >
+                                                        <PencilAltIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <button
+                                                        className="text-red-500 hover:text-red-700 ml-2"
+                                                        onClick={() =>
+                                                            handleDeleteCategory(category.id)
+                                                        }
+                                                    >
+                                                        <TrashIcon className="h-5 w-5" />
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        {editingCategoryNameError && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {editingCategoryNameError}
+                            </p>
+                        )}
+                        {/* Кнопки сохранения и отмены */}
+                        <div className="mt-6 text-center">
+                            <button
+                                className="bg-green-500 text-white py-2 px-6 rounded hover:bg-green-600 transition-colors duration-200 mr-4"
+                                onClick={closeCategoryModal}
+                            >
+                                Сохранить
+                            </button>
+                            <button
+                                className="bg-gray-500 text-white py-2 px-6 rounded hover:bg-gray-600 transition-colors duration-200"
+                                onClick={cancelCategoryModal}
+                            >
+                                Отмена
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default CreateVenue;
+
+
+File: TeamsTab.tsx
+"use client";
+import React, { useState } from 'react';
+import Modal from './Modal';
+import { XIcon, PlusIcon, CheckIcon, PencilAltIcon, TrashIcon } from '@heroicons/react/outline';
+
+interface Team {
+    id: number;
+    tabletNumber: number; // Один номер планшета
+    teamName: string;
+    tableNumber: number;
+    registeredParticipants: number;
+    actualParticipants: number;
+}
+
+const TeamsTab: React.FC = () => {
+    const [teams, setTeams] = useState<Team[]>([
+        {
+            id: 1,
+            tabletNumber: 1,
+            teamName: 'Команда А',
+            tableNumber: 101,
+            registeredParticipants: 5,
+            actualParticipants: 4,
+        },
+        {
+            id: 2,
+            tabletNumber: 2,
+            teamName: 'Команда Б',
+            tableNumber: 102,
+            registeredParticipants: 6,
+            actualParticipants: 6,
+        },
+        // Добавьте больше тестовых данных при необходимости
+    ]);
+
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
+    const [newTeam, setNewTeam] = useState<Team>({
+        id: teams.length + 1,
+        tabletNumber: 0,
+        teamName: '',
+        tableNumber: 0,
+        registeredParticipants: 0,
+        actualParticipants: 0,
+    });
+
+    // Состояния для ошибок валидации
+    const [errors, setErrors] = useState({
+        tabletNumber: '',
+        teamName: '',
+        tableNumber: '',
+        registeredParticipants: '',
+        actualParticipants: '',
+    });
+
+    const openEditModal = (team: Team) => {
+        setCurrentTeam(team);
+        setErrors({
+            tabletNumber: '',
+            teamName: '',
+            tableNumber: '',
+            registeredParticipants: '',
+            actualParticipants: '',
+        });
+        setIsModalOpen(true);
+    };
+
+    const openAddModal = () => {
+        setCurrentTeam(null);
+        setNewTeam({
+            id: teams.length + 1,
+            tabletNumber: 0,
+            teamName: '',
+            tableNumber: 0,
+            registeredParticipants: 0,
+            actualParticipants: 0,
+        });
+        setErrors({
+            tabletNumber: '',
+            teamName: '',
+            tableNumber: '',
+            registeredParticipants: '',
+            actualParticipants: '',
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleSave = () => {
+        const teamToSave = currentTeam ? currentTeam : newTeam;
+
+        // Валидация
+        const newErrors = {
+            tabletNumber: '',
+            teamName: '',
+            tableNumber: '',
+            registeredParticipants: '',
+            actualParticipants: '',
+        };
+        let isValid = true;
+
+        if (teamToSave.tabletNumber <= 0) {
+            newErrors.tabletNumber = 'Пожалуйста, укажите корректный номер планшета.';
+            isValid = false;
+        } else {
+            // Проверка на уникальность номера планшета
+            const isTabletAssigned = teams.some(
+                (team) =>
+                    team.tabletNumber === teamToSave.tabletNumber &&
+                    team.id !== teamToSave.id
+            );
+            if (isTabletAssigned) {
+                newErrors.tabletNumber = 'Этот номер планшета уже назначен другой команде.';
+                isValid = false;
+            }
+        }
+
+        if (!teamToSave.teamName.trim()) {
+            newErrors.teamName = 'Пожалуйста, укажите название команды.';
+            isValid = false;
+        }
+
+        if (teamToSave.tableNumber <= 0) {
+            newErrors.tableNumber = 'Пожалуйста, укажите корректный номер стола.';
+            isValid = false;
+        }
+
+        if (teamToSave.registeredParticipants <= 0) {
+            newErrors.registeredParticipants = 'Пожалуйста, укажите количество зарегистрированных участников.';
+            isValid = false;
+        }
+
+        if (teamToSave.actualParticipants < 0) {
+            newErrors.actualParticipants = 'Количество фактических участников не может быть отрицательным.';
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+
+        if (!isValid) {
+            return;
+        }
+
+        if (currentTeam) {
+            // Обновить существующую команду
+            setTeams(teams.map((team) => (team.id === currentTeam.id ? teamToSave : team)));
+        } else {
+            // Добавить новую команду
+            setTeams([...teams, teamToSave]);
+        }
+        setIsModalOpen(false);
+    };
+
+    const handleDeleteTeam = (teamId: number) => {
+        if (confirm('Вы уверены, что хотите удалить эту команду?')) {
+            setTeams(teams.filter((team) => team.id !== teamId));
+        }
+    };
+
+    return (
+        <div className="bg-[#FAF3DD] text-black p-20 rounded-lg shadow-lg text-center py-20">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Команды</h2>
+                <button
+                    className="bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200 flex items-center"
+                    onClick={openAddModal}
+                >
+                    <PlusIcon className="h-5 w-5 mr-2" />
+                    Добавить команду
+                </button>
+            </div>
+            <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                    <thead>
+                        <tr>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
+                                Номер планшета
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
+                                Название команды
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
+                                Номер стола
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
+                                Зарегистрировано
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
+                                Фактически
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">
+                                Действия
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {teams.map((team, index) => (
+                            <tr
+                                key={team.id}
+                                className={`${
+                                    index % 2 === 0 ? 'bg-white' : 'bg-[#FFF5E1]'
+                                } hover:bg-gray-200 transition-colors duration-200`}
+                            >
+                                <td className="border px-4 py-3 text-center">
+                                    {team.tabletNumber}
+                                </td>
+                                <td className="border px-4 py-3 text-center">{team.teamName}</td>
+                                <td className="border px-4 py-3 text-center">{team.tableNumber}</td>
+                                <td className="border px-4 py-3 text-center">
+                                    {team.registeredParticipants}
+                                </td>
+                                <td className="border px-4 py-3 text-center">
+                                    {team.actualParticipants}
+                                </td>
+                                <td className="border px-4 py-3 flex">
+                                    <button
+                                        className="text-blue-500 hover:text-blue-700 p-2 rounded transition-colors duration-200 mr-3"
+                                        onClick={() => openEditModal(team)}
+                                    >
+                                        <PencilAltIcon className="h-5 w-5" />
+                                    </button>
+                                    <button
+                                        className="text-red-500 hover:text-red-700 p-2 rounded transition-colors duration-200"
+                                        onClick={() => handleDeleteTeam(team.id)}
+                                    >
+                                        <TrashIcon className="h-5 w-5" />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Модальное окно для добавления/редактирования команды */}
+            {isModalOpen && (
+                <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                    <h2 className="text-2xl font-bold mb-6 text-center mt-20">
+                        {currentTeam ? 'Редактирование команды' : 'Добавление команды'}
+                    </h2>
+                    <form className="flex flex-col space-y-4">
+                        {/* Номер планшета */}
+                        <div className="flex flex-col md:flex-row items-start md:items-center">
+                            <label
+                                htmlFor="tabletNumber"
+                                className="w-full md:w-1/3 text-left md:text-right mr-4 font-medium"
+                            >
+                                Номер планшета:
+                            </label>
+                            <div className="w-full md:w-2/3">
+                                <input
+                                    type="number"
+                                    id="tabletNumber"
+                                    placeholder="Введите номер планшета"
+                                    value={
+                                        currentTeam
+                                            ? currentTeam.tabletNumber || ''
+                                            : newTeam.tabletNumber || ''
+                                    }
+                                    onChange={(e) => {
+                                        const value = Number(e.target.value);
+                                        if (currentTeam) {
+                                            setCurrentTeam({
+                                                ...currentTeam,
+                                                tabletNumber: value,
+                                            });
+                                        } else {
+                                            setNewTeam({
+                                                ...newTeam,
+                                                tabletNumber: value,
+                                            });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.tabletNumber ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.tabletNumber && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.tabletNumber}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        {/* Название команды */}
+                        <div className="flex flex-col md:flex-row items-start md:items-center">
+                            <label
+                                htmlFor="teamName"
+                                className="w-full md:w-1/3 text-left md:text-right mr-4 font-medium"
+                            >
+                                Название команды:
+                            </label>
+                            <div className="w-full md:w-2/3">
+                                <input
+                                    type="text"
+                                    id="teamName"
+                                    placeholder="Введите название команды"
+                                    value={currentTeam ? currentTeam.teamName : newTeam.teamName}
+                                    onChange={(e) => {
+                                        if (currentTeam) {
+                                            setCurrentTeam({
+                                                ...currentTeam,
+                                                teamName: e.target.value,
+                                            });
+                                        } else {
+                                            setNewTeam({ ...newTeam, teamName: e.target.value });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.teamName ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.teamName && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.teamName}</p>
+                                )}
+                            </div>
+                        </div>
+                        {/* Номер стола */}
+                        <div className="flex flex-col md:flex-row items-start md:items-center">
+                            <label
+                                htmlFor="tableNumber"
+                                className="w-full md:w-1/3 text-left md:text-right mr-4 font-medium"
+                            >
+                                Номер стола:
+                            </label>
+                            <div className="w-full md:w-2/3">
+                                <input
+                                    type="number"
+                                    id="tableNumber"
+                                    placeholder="Введите номер стола"
+                                    value={
+                                        currentTeam
+                                            ? currentTeam.tableNumber || ''
+                                            : newTeam.tableNumber || ''
+                                    }
+                                    onChange={(e) => {
+                                        const value = Number(e.target.value);
+                                        if (currentTeam) {
+                                            setCurrentTeam({
+                                                ...currentTeam,
+                                                tableNumber: value,
+                                            });
+                                        } else {
+                                            setNewTeam({ ...newTeam, tableNumber: value });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.tableNumber ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.tableNumber && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.tableNumber}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        {/* Зарегистрировано участников */}
+                        <div className="flex flex-col md:flex-row items-start md:items-center">
+                            <label
+                                htmlFor="registeredParticipants"
+                                className="w-full md:w-1/3 text-left md:text-right mr-4 font-medium"
+                            >
+                                Зарегистрировано участников:
+                            </label>
+                            <div className="w-full md:w-2/3">
+                                <input
+                                    type="number"
+                                    id="registeredParticipants"
+                                    placeholder="Введите количество"
+                                    value={
+                                        currentTeam
+                                            ? currentTeam.registeredParticipants || ''
+                                            : newTeam.registeredParticipants || ''
+                                    }
+                                    onChange={(e) => {
+                                        const value = Number(e.target.value);
+                                        if (currentTeam) {
+                                            setCurrentTeam({
+                                                ...currentTeam,
+                                                registeredParticipants: value,
+                                            });
+                                        } else {
+                                            setNewTeam({
+                                                ...newTeam,
+                                                registeredParticipants: value,
+                                            });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.registeredParticipants ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.registeredParticipants && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.registeredParticipants}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        {/* Фактически участников */}
+                        <div className="flex flex-col md:flex-row items-start md:items-center mb-10">
+                            <label
+                                htmlFor="actualParticipants"
+                                className="w-full md:w-1/3 text-left md:text-right mr-4 font-medium"
+                            >
+                                Фактически участников:
+                            </label>
+                            <div className="w-full md:w-2/3">
+                                <input
+                                    type="number"
+                                    id="actualParticipants"
+                                    placeholder="Введите количество"
+                                    value={
+                                        currentTeam
+                                            ? currentTeam.actualParticipants || ''
+                                            : newTeam.actualParticipants || ''
+                                    }
+                                    onChange={(e) => {
+                                        const value = Number(e.target.value);
+                                        if (currentTeam) {
+                                            setCurrentTeam({
+                                                ...currentTeam,
+                                                actualParticipants: value,
+                                            });
+                                        } else {
+                                            setNewTeam({
+                                                ...newTeam,
+                                                actualParticipants: value,
+                                            });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.actualParticipants ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.actualParticipants && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.actualParticipants}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        {/* Кнопки сохранения и отмены */}
+                        <div className="flex justify-center space-x-4 mt-6  pb-20 px-[200px]">
+                            <button
+                                type="button"
+                                className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 flex items-center"
+                                onClick={handleSave}
+                            >
+                                <CheckIcon className="h-5 w-5 mr-2" />
+                                {currentTeam ? 'Сохранить изменения' : 'Добавить команду'}
+                            </button>
+                            <button
+                                type="button"
+                                className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors duration-200 flex items-center"
+                                onClick={() => setIsModalOpen(false)}
+                            >
+                                <XIcon className="h-5 w-5 mr-2" />
+                                Отмена
+                            </button>
+                        </div>
+                    </form>
+                </Modal>
+            )}
+        </div>
+    );
+};
+
+export default TeamsTab;
+
+
+File: Users.tsx
+"use client";
+import React, { useState } from 'react';
+import Modal from './Modal';
+import {
+    XIcon,
+    PlusIcon,
+    PencilAltIcon,
+    TrashIcon,
+    CheckIcon,
+} from '@heroicons/react/outline';
+
+interface Player {
+    id: number;
+    playerName: string;
+    team: string;
+    gameName: string;
+    email: string;
+    phone: string;
+    questionDifficulty: string;
+    aboutHost: string;
+    payment: boolean;
+}
+
+const PlayersTab: React.FC = () => {
+    const [players, setPlayers] = useState<Player[]>([
+        {
+            id: 1,
+            playerName: 'Иван',
+            team: 'Команда А',
+            gameName: 'Игра 1',
+            email: 'mail@mail.ru',
+            phone: '88005553535',
+            questionDifficulty: 'Легко',
+            aboutHost: 'Хорошо',
+            payment: false,
+        },
+        {
+            id: 2,
+            playerName: 'Мария',
+            team: 'Команда Б',
+            gameName: 'Игра 2',
+            email: 'maria@mail.ru',
+            phone: '88001234567',
+            questionDifficulty: 'Средне',
+            aboutHost: 'Отлично',
+            payment: true,
+        },
+        // Добавьте больше тестовых данных при необходимости
+    ]);
+
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
+    const [newPlayer, setNewPlayer] = useState<Player>({
+        id: players.length + 1,
+        playerName: '',
+        team: '',
+        gameName: '',
+        email: '',
+        phone: '',
+        questionDifficulty: '',
+        aboutHost: '',
+        payment: false,
+    });
+
+    // States for validation errors
+    const [errors, setErrors] = useState({
+        playerName: '',
+        team: '',
+        gameName: '',
+        email: '',
+        phone: '',
+        questionDifficulty: '',
+        aboutHost: '',
+    });
+
+    const openEditModal = (player: Player) => {
+        setCurrentPlayer(player);
+        setErrors({
+            playerName: '',
+            team: '',
+            gameName: '',
+            email: '',
+            phone: '',
+            questionDifficulty: '',
+            aboutHost: '',
+        });
+        setIsModalOpen(true);
+    };
+
+    const openAddModal = () => {
+        setCurrentPlayer(null);
+        setNewPlayer({
+            id: players.length + 1,
+            playerName: '',
+            team: '',
+            gameName: '',
+            email: '',
+            phone: '',
+            questionDifficulty: '',
+            aboutHost: '',
+            payment: false,
+        });
+        setErrors({
+            playerName: '',
+            team: '',
+            gameName: '',
+            email: '',
+            phone: '',
+            questionDifficulty: '',
+            aboutHost: '',
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleSave = () => {
+        const playerToSave = currentPlayer ? currentPlayer : newPlayer;
+
+        // Validation
+        const newErrors = {
+            playerName: '',
+            team: '',
+            gameName: '',
+            email: '',
+            phone: '',
+            questionDifficulty: '',
+            aboutHost: '',
+        };
+        let isValid = true;
+
+        if (!playerToSave.playerName.trim()) {
+            newErrors.playerName = 'Пожалуйста, введите имя игрока.';
+            isValid = false;
+        }
+        if (!playerToSave.team.trim()) {
+            newErrors.team = 'Пожалуйста, укажите команду.';
+            isValid = false;
+        }
+        if (!playerToSave.gameName.trim()) {
+            newErrors.gameName = 'Пожалуйста, укажите название игры.';
+            isValid = false;
+        }
+        if (!playerToSave.email.trim()) {
+            newErrors.email = 'Пожалуйста, введите электронную почту.';
+            isValid = false;
+        }
+        if (!playerToSave.phone.trim()) {
+            newErrors.phone = 'Пожалуйста, введите номер телефона.';
+            isValid = false;
+        }
+        if (!playerToSave.questionDifficulty.trim()) {
+            newErrors.questionDifficulty = 'Пожалуйста, укажите сложность вопросов.';
+            isValid = false;
+        }
+        if (!playerToSave.aboutHost.trim()) {
+            newErrors.aboutHost = 'Пожалуйста, укажите информацию о ведущем.';
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+
+        if (!isValid) {
+            return;
+        }
+
+        if (currentPlayer) {
+            // Update existing player
+            setPlayers(players.map((player) => (player.id === currentPlayer.id ? playerToSave : player)));
+        } else {
+            // Add new player
+            setPlayers([...players, playerToSave]);
+        }
+        setIsModalOpen(false);
+    };
+
+    const handleDeletePlayer = (playerId: number) => {
+        if (confirm('Вы уверены, что хотите удалить этого игрока?')) {
+            setPlayers(players.filter((player) => player.id !== playerId));
+        }
+    };
+
+    return (
+        <div className="bg-[#FAF3DD] text-black p-20 rounded-lg shadow-lg text-center py-20">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Игроки</h2>
+                <button
+                    className="bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200 flex items-center"
+                    onClick={openAddModal}
+                >
+                    <PlusIcon className="h-5 w-5 mr-2" />
+                    Добавить игрока
+                </button>
+            </div>
+            <div className="overflow-x-auto text-[14px]">
+                <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                    <thead>
+                        <tr>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-md font-semibold">
+                                Имя игрока
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-md font-semibold">
+                                Команда
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-md font-semibold">
+                                Название игры
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-md font-semibold">
+                                Почта
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-md font-semibold">
+                                Телефон
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-md font-semibold">
+                                Сложность вопросов
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-md font-semibold">
+                                О ведущем
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-md font-semibold">
+                                Оплата?
+                            </th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-md font-semibold">
+                                Действия
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {players.map((player, index) => (
+                            <tr
+                                key={player.id}
+                                className={`${
+                                    index % 2 === 0 ? 'bg-white' : 'bg-[#FFF5E1]'
+                                } hover:bg-gray-200 transition-colors duration-200`}
+                            >
+                                <td className="border px-4 py-3 text-center">{player.playerName}</td>
+                                <td className="border px-4 py-3 text-center">{player.team}</td>
+                                <td className="border px-4 py-3 text-center">{player.gameName}</td>
+                                <td className="border px-4 py-3 text-center">{player.email}</td>
+                                <td className="border px-4 py-3 text-center">{player.phone}</td>
+                                <td className="border px-4 py-3 text-center">{player.questionDifficulty}</td>
+                                <td className="border px-4 py-3 text-center">{player.aboutHost}</td>
+                                <td className="border px-4 py-3 text-center">
+                                    {player.payment ? 'ДА' : 'НЕТ'}
+                                </td>
+                                <td className="px-4 py-7 flex justify-center border">
+                                    <button
+                                        className="text-blue-500 hover:text-blue-700 p-2 rounded transition-colors duration-200 mr-3"
+                                        onClick={() => openEditModal(player)}
+                                    >
+                                        <PencilAltIcon className="h-5 w-5" />
+                                    </button>
+                                    <button
+                                        className="text-red-500 hover:text-red-700 p-2 rounded transition-colors duration-200"
+                                        onClick={() => handleDeletePlayer(player.id)}
+                                    >
+                                        <TrashIcon className="h-5 w-5" />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Модальное окно для добавления/редактирования игрока */}
+            {isModalOpen && (
+                <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                    <div className="m-20">
+                        <h2 className="text-2xl font-bold mb-6 text-center">
+                            {currentPlayer ? 'Редактирование игрока' : 'Добавление игрока'}
+                        </h2>
+                        <form className="flex flex-col space-y-4">
+                            {/* Имя игрока */}
+                            <div className="flex flex-col">
+                                <label className="font-medium">Имя игрока:</label>
+                                <input
+                                    type="text"
+                                    placeholder="Введите имя игрока"
+                                    value={currentPlayer ? currentPlayer.playerName : newPlayer.playerName}
+                                    onChange={(e) => {
+                                        if (currentPlayer) {
+                                            setCurrentPlayer({ ...currentPlayer, playerName: e.target.value });
+                                        } else {
+                                            setNewPlayer({ ...newPlayer, playerName: e.target.value });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.playerName ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.playerName && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.playerName}</p>
+                                )}
+                            </div>
+                            {/* Команда */}
+                            <div className="flex flex-col">
+                                <label className="font-medium">Команда:</label>
+                                <input
+                                    type="text"
+                                    placeholder="Введите название команды"
+                                    value={currentPlayer ? currentPlayer.team : newPlayer.team}
+                                    onChange={(e) => {
+                                        if (currentPlayer) {
+                                            setCurrentPlayer({ ...currentPlayer, team: e.target.value });
+                                        } else {
+                                            setNewPlayer({ ...newPlayer, team: e.target.value });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.team ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.team && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.team}</p>
+                                )}
+                            </div>
+                            {/* Название игры */}
+                            <div className="flex flex-col">
+                                <label className="font-medium">Название игры:</label>
+                                <input
+                                    type="text"
+                                    placeholder="Введите название игры"
+                                    value={currentPlayer ? currentPlayer.gameName : newPlayer.gameName}
+                                    onChange={(e) => {
+                                        if (currentPlayer) {
+                                            setCurrentPlayer({ ...currentPlayer, gameName: e.target.value });
+                                        } else {
+                                            setNewPlayer({ ...newPlayer, gameName: e.target.value });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.gameName ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.gameName && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.gameName}</p>
+                                )}
+                            </div>
+                            {/* Почта */}
+                            <div className="flex flex-col">
+                                <label className="font-medium">Почта:</label>
+                                <input
+                                    type="email"
+                                    placeholder="Введите почту"
+                                    value={currentPlayer ? currentPlayer.email : newPlayer.email}
+                                    onChange={(e) => {
+                                        if (currentPlayer) {
+                                            setCurrentPlayer({ ...currentPlayer, email: e.target.value });
+                                        } else {
+                                            setNewPlayer({ ...newPlayer, email: e.target.value });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.email ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.email && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                                )}
+                            </div>
+                            {/* Телефон */}
+                            <div className="flex flex-col">
+                                <label className="font-medium">Телефон:</label>
+                                <input
+                                    type="tel"
+                                    placeholder="Введите номер телефона"
+                                    value={currentPlayer ? currentPlayer.phone : newPlayer.phone}
+                                    onChange={(e) => {
+                                        if (currentPlayer) {
+                                            setCurrentPlayer({ ...currentPlayer, phone: e.target.value });
+                                        } else {
+                                            setNewPlayer({ ...newPlayer, phone: e.target.value });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.phone ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.phone && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+                                )}
+                            </div>
+                            {/* Сложность вопросов */}
+                            <div className="flex flex-col">
+                                <label className="font-medium">Сложность вопросов:</label>
+                                <input
+                                    type="text"
+                                    placeholder="Введите сложность вопросов"
+                                    value={
+                                        currentPlayer
+                                            ? currentPlayer.questionDifficulty
+                                            : newPlayer.questionDifficulty
+                                    }
+                                    onChange={(e) => {
+                                        if (currentPlayer) {
+                                            setCurrentPlayer({ ...currentPlayer, questionDifficulty: e.target.value });
+                                        } else {
+                                            setNewPlayer({ ...newPlayer, questionDifficulty: e.target.value });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.questionDifficulty ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.questionDifficulty && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.questionDifficulty}</p>
+                                )}
+                            </div>
+                            {/* О ведущем */}
+                            <div className="flex flex-col">
+                                <label className="font-medium">О ведущем:</label>
+                                <input
+                                    type="text"
+                                    placeholder="Введите информацию о ведущем"
+                                    value={currentPlayer ? currentPlayer.aboutHost : newPlayer.aboutHost}
+                                    onChange={(e) => {
+                                        if (currentPlayer) {
+                                            setCurrentPlayer({ ...currentPlayer, aboutHost: e.target.value });
+                                        } else {
+                                            setNewPlayer({ ...newPlayer, aboutHost: e.target.value });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.aboutHost ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.aboutHost && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.aboutHost}</p>
+                                )}
+                            </div>
+                            {/* Оплата */}
+                            <div className="flex items-center mt-4">
+                                <input
+                                    type="checkbox"
+                                    checked={currentPlayer ? currentPlayer.payment : newPlayer.payment}
+                                    onChange={(e) => {
+                                        if (currentPlayer) {
+                                            setCurrentPlayer({ ...currentPlayer, payment: e.target.checked });
+                                        } else {
+                                            setNewPlayer({ ...newPlayer, payment: e.target.checked });
+                                        }
+                                    }}
+                                    className="mr-2 h-5 w-5"
+                                />
+                                <label className="font-medium">Оплата произведена</label>
+                            </div>
+                            {/* Кнопки сохранения и отмены */}
+                            <div className="flex justify-center space-x-4 mt-6 pb-20 px-[200px]">
+                                <button
+                                    type="button"
+                                    className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 flex items-center"
+                                    onClick={handleSave}
+                                >
+                                    <CheckIcon className="h-5 w-5 mr-2" />
+                                    {currentPlayer ? 'Сохранить изменения' : 'Добавить игрока'}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors duration-200 flex items-center"
+                                    onClick={() => setIsModalOpen(false)}
+                                >
+                                    <XIcon className="h-5 w-5 mr-2" />
+                                    Отмена
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </Modal>
+            )}
+        </div>
+    );
+};
+
+export default PlayersTab;
+
+
+File: RolesTab.tsx
+"use client";
+import React, { useState } from 'react';
+import Modal from './Modal';
+import {
+    XIcon,
+    PlusIcon,
+    PencilAltIcon,
+    TrashIcon,
+    CheckIcon,
+} from '@heroicons/react/outline'; // Ensure you have these icons installed
+
+interface Role {
+    id: number;
+    name: string;
+    permissions: string[];
+}
+
+const RolesTab: React.FC = () => {
+    const [roles, setRoles] = useState<Role[]>([
+        { id: 1, name: 'Администратор', permissions: ['Все права'] },
+        { id: 2, name: 'Кассир', permissions: ['Приём оплаты', 'Проверка оплаты'] },
+        { id: 3, name: 'Официант', permissions: ['Получение вызовов'] },
+    ]);
+
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [currentRole, setCurrentRole] = useState<Role | null>(null);
+    const [newRole, setNewRole] = useState<Role>({
+        id: roles.length + 1,
+        name: '',
+        permissions: []
+    });
+
+    // States for validation errors
+    const [errors, setErrors] = useState({
+        name: '',
+        permissions: '',
+    });
+
+    const openEditModal = (role: Role) => {
+        setCurrentRole(role);
+        setErrors({
+            name: '',
+            permissions: '',
+        });
+        setIsModalOpen(true);
+    };
+
+    const openAddModal = () => {
+        setCurrentRole(null);
+        setNewRole({
+            id: roles.length + 1,
+            name: '',
+            permissions: []
+        });
+        setErrors({
+            name: '',
+            permissions: '',
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleSave = () => {
+        const roleToSave = currentRole ? currentRole : newRole;
+
+        // Validation
+        const newErrors = {
+            name: '',
+            permissions: '',
+        };
+        let isValid = true;
+
+        if (!roleToSave.name.trim()) {
+            newErrors.name = 'Пожалуйста, укажите название роли.';
+            isValid = false;
+        }
+
+        if (roleToSave.permissions.length === 0) {
+            newErrors.permissions = 'Пожалуйста, выберите хотя бы одно право.';
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+
+        if (!isValid) {
+            return;
+        }
+
+        if (currentRole) {
+            // Update existing role
+            setRoles(roles.map(role => role.id === currentRole.id ? roleToSave : role));
+        } else {
+            // Add new role
+            setRoles([...roles, roleToSave]);
+        }
+        setIsModalOpen(false);
+    };
+
+    const togglePermission = (permission: string) => {
+        if (currentRole) {
+            const hasPermission = currentRole.permissions.includes(permission);
+            const updatedPermissions = hasPermission
+                ? currentRole.permissions.filter(p => p !== permission)
+                : [...currentRole.permissions, permission];
+            setCurrentRole({ ...currentRole, permissions: updatedPermissions });
+        } else {
+            const hasPermission = newRole.permissions.includes(permission);
+            const updatedPermissions = hasPermission
+                ? newRole.permissions.filter(p => p !== permission)
+                : [...newRole.permissions, permission];
+            setNewRole({ ...newRole, permissions: updatedPermissions });
+        }
+    };
+
+    const allPermissions = ['Все права', 'Приём оплаты', 'Проверка оплаты', 'Получение вызовов'];
+
+    // Handler to delete a role
+    const handleDeleteRole = (roleId: number) => {
+        if (confirm('Вы уверены, что хотите удалить эту роль?')) {
+            setRoles(roles.filter(role => role.id !== roleId));
+        }
+    };
+
+    return (
+        <div className="bg-[#FAF3DD] text-black rounded-lg shadow-lg p-20">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Роли</h2>
+                <button
+                    className="bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200 flex items-center"
+                    onClick={openAddModal}
+                >
+                    <PlusIcon className="h-5 w-5 mr-2" />
+                    Добавить роль
+                </button>
+            </div>
+            <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                    <thead>
+                        <tr>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Роль</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Права</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {roles.map((role, index) => (
+                            <tr
+                                key={role.id}
+                                className={`${
+                                    index % 2 === 0 ? 'bg-white' : 'bg-[#FFF5E1]'
+                                } hover:bg-gray-200 transition-colors duration-200`}
+                            >
+                                <td className="border px-4 py-3 text-center">{role.name}</td>
+                                <td className="border px-4 py-3 text-center">{role.permissions.join(', ')}</td>
+                                <td className="border px-4 py-3 text-center">
+                                    <div className="flex justify-center space-x-2">
+                                        {/* Edit Button */}
+                                        <button
+                                            onClick={() => openEditModal(role)}
+                                            className="text-blue-500 hover:text-blue-700 p-2 rounded transition-colors duration-200"
+                                            aria-label="Редактировать"
+                                            title="Редактировать"
+                                        >
+                                            <PencilAltIcon className="h-5 w-5" />
+                                        </button>
+
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={() => handleDeleteRole(role.id)}
+                                            className="text-red-500 hover:text-red-700 p-2 rounded transition-colors duration-200"
+                                            aria-label="Удалить"
+                                            title="Удалить"
+                                        >
+                                            <TrashIcon className="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Модальное окно для добавления/редактирования роли */}
+            {isModalOpen && (
+                <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                    <div className="m-20">
+                        <h2 className="text-2xl font-bold mb-4 text-center w-[500px]">
+                            {currentRole ? 'Редактирование роли' : 'Добавление роли'}
+                        </h2>
+                        <div className="flex flex-col space-y-4">
+                            {/* Название роли */}
+                            <div className="flex flex-col">
+                                <input
+                                    type="text"
+                                    placeholder="Название роли"
+                                    value={currentRole ? currentRole.name : newRole.name}
+                                    onChange={(e) => {
+                                        if (currentRole) {
+                                            setCurrentRole({ ...currentRole, name: e.target.value });
+                                        } else {
+                                            setNewRole({ ...newRole, name: e.target.value });
+                                        }
+                                    }}
+                                    className={`p-2 rounded border w-full focus:outline-none focus:ring-2 focus:ring-[#D4A373] ${
+                                        errors.name ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {errors.name && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                                )}
+                            </div>
+
+                            {/* Права */}
+                            <div className="flex flex-col">
+                                <span className="font-medium mb-2">Права:</span>
+                                <div className="flex flex-wrap gap-2">
+                                    {allPermissions.map((permission) => (
+                                        <label key={permission} className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={
+                                                    currentRole
+                                                        ? currentRole.permissions.includes(permission)
+                                                        : newRole.permissions.includes(permission)
+                                                }
+                                                onChange={() => togglePermission(permission)}
+                                                className="mr-2 h-8 w-8"
+                                            />
+                                            {permission}
+                                        </label>
+                                    ))}
+                                </div>
+                                {errors.permissions && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.permissions}</p>
+                                )}
+                            </div>
+
+                            {/* Кнопка сохранения */}
+                            <button
+                                className="bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200 flex items-center justify-center"
+                                onClick={handleSave}
+                            >
+                                <CheckIcon className="h-5 w-5 mr-2" />
+                                {currentRole ? 'Сохранить изменения' : 'Добавить роль'}
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+        </div>
+    )};
+
+    export default RolesTab;
+
+
+File: PaymentsTab.tsx
+"use client";
+import React, { useState } from 'react';
+
+interface Payment {
+    id: number;
+    tabletNumber: number;
+    tableNumber: number;
+    teamName: string;
+    plannedParticipants: number;
+    actualParticipants: number;
+    paymentMethod: string;
+    previouslyPaid: number;
+    additionalPayment: number;
+    isFullyPaid: boolean;
+}
+
+const PaymentsTab: React.FC = () => {
+    const [payments, setPayments] = useState<Payment[]>([
+        { id: 1, tabletNumber: 1, tableNumber: 101, teamName: 'Команда А', plannedParticipants: 5, actualParticipants: 4, paymentMethod: 'QR-код', previouslyPaid: 300, additionalPayment: 50, isFullyPaid: false },
+        { id: 2, tabletNumber: 2, tableNumber: 102, teamName: 'Команда Б', plannedParticipants: 6, actualParticipants: 6, paymentMethod: 'Карта', previouslyPaid: 600, additionalPayment: 0, isFullyPaid: true },
+        // Добавьте больше тестовых данных
+    ]);
+
+    // Удаляем состояния, связанные с модальным окном
+    // const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    // const [currentPayment, setCurrentPayment] = useState<Payment | null>(null);
+    // const [additionalPayment, setAdditionalPayment] = useState<number>(0);
+
+    // Функция для обработки доплаты
+    const handleAddPayment = (paymentId: number) => {
+        setPayments(prevPayments => prevPayments.map(payment => {
+            if (payment.id === paymentId) {
+                // Расчет необходимой доплаты
+                const totalRequiredPayment = payment.plannedParticipants * 50;
+                const totalPaid = payment.previouslyPaid + payment.additionalPayment;
+                const neededAdditionalPayment = totalRequiredPayment - totalPaid;
+
+                // Если уже полностью оплачено, ничего не делаем
+                if (neededAdditionalPayment <= 0) {
+                    return { ...payment, isFullyPaid: true };
+                }
+
+                // Обновляем доплату и статус оплаты
+                const updatedAdditionalPayment = payment.additionalPayment + neededAdditionalPayment;
+                const updatedIsFullyPaid = (payment.previouslyPaid + updatedAdditionalPayment) >= totalRequiredPayment;
+
+                return {
+                    ...payment,
+                    additionalPayment: updatedAdditionalPayment,
+                    isFullyPaid: updatedIsFullyPaid
+                };
+            }
+            return payment;
+        }));
+    };
+
+    return (
+        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 ml-2 mt-10">Оплаты</h2>
+            {/* Обернем таблицу в контейнер с горизонтальной прокруткой */}
+            <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                    <thead>
+                        <tr>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Номер планшета</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Номер стола</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Название команды</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Запланировано</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Фактически</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Способ оплаты</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Оплачено ранее</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Доплата</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Статус</th>
+                            <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {payments.map((payment, index) => (
+                            <tr
+                                key={payment.id}
+                                className={`${
+                                    index % 2 === 0 ? 'bg-white' : 'bg-[#FFF5E1]'
+                                } hover:bg-gray-200 transition-colors duration-200`}
+                            >
+                                <td className="border px-4 py-3 text-center">{payment.tabletNumber}</td>
+                                <td className="border px-4 py-3 text-center">{payment.tableNumber}</td>
+                                <td className="border px-4 py-3 text-center">{payment.teamName}</td>
+                                <td className="border px-4 py-3 text-center">{payment.plannedParticipants}</td>
+                                <td className="border px-4 py-3 text-center">{payment.actualParticipants}</td>
+                                <td className="border px-4 py-3 text-center">{payment.paymentMethod}</td>
+                                <td className="border px-4 py-3 text-center">{payment.previouslyPaid} ₽</td>
+                                <td className="border px-4 py-3 text-center">{payment.additionalPayment} ₽</td>
+                                <td className="border px-4 py-3 text-center">
+                                    {payment.isFullyPaid ? (
+                                        <span className="text-green-600 font-bold">Полностью оплачено</span>
+                                    ) : (
+                                        <span className="text-red-600 font-bold">Требуется доплата</span>
+                                    )}
+                                </td>
+                                <td className="border px-4 py-3 text-center">
+                                    {!payment.isFullyPaid && (
+                                        <button
+                                            className="bg-[#D4A373] text-white px-3 py-1 rounded hover:bg-[#c99b6d] transition-colors duration-200"
+                                            onClick={() => handleAddPayment(payment.id)}
+                                        >
+                                            Добавить доплату
+                                        </button>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+
+
+}
+export default PaymentsTab;
+
+File: ScoreCountingTab.tsx
+"use client";
+import React, { useState } from 'react';
+import Modal from './Modal';
+
+interface TeamScore {
+    id: number;
+    teamName: string;
+    round1: number;
+    round2: number;
+    round3: number;
+    round4: number;
+    round5: number;
+    round6: number;
+    round7: number;
+    total: number;
+}
+
+const ScoreCountingTab: React.FC = () => {
+    const [scores, setScores] = useState<TeamScore[]>([
+        { id: 1, teamName: 'Команда А', round1: 10, round2: 15, round3: 20, round4: 25, round5: 30, round6: 35, round7: 40, total: 175 },
+        { id: 2, teamName: 'Команда Б', round1: 9, round2: 14, round3: 19, round4: 24, round5: 29, round6: 34, round7: 39, total: 168 },
+        // Добавьте больше тестовых данных
+    ]);
+
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [currentScore, setCurrentScore] = useState<TeamScore | null>(null);
+
+    const openEditModal = (score: TeamScore) => {
+        setCurrentScore(score);
+        setIsModalOpen(true);
+    };
+
+    const handleSave = () => {
+        if (currentScore) {
+            // Пересчитываем итог, если это необходимо
+            const updatedTotal = 
+                currentScore.round1 + 
+                currentScore.round2 + 
+                currentScore.round3 + 
+                currentScore.round4 + 
+                currentScore.round5 + 
+                currentScore.round6 + 
+                currentScore.round7;
+            setCurrentScore({ ...currentScore, total: updatedTotal });
+
+            setScores(scores.map(score => score.id === currentScore.id ? { ...currentScore, total: updatedTotal } : score));
+        }
+        setIsModalOpen(false);
+    };
+
+    return (
+        <div className="bg-[#FAF3DD] text-black p-6 rounded-lg shadow-lg p-20">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Подсчёт очков</h2>
+                {/* Здесь можно добавить кнопки для завершения игры и возврата назад */}
+            </div>
+            <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                <thead>
+                    <tr>
+                        <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Команда</th>
+                        <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Раунд 1</th>
+                        <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Раунд 2</th>
+                        <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Раунд 3</th>
+                        <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Раунд 4</th>
+                        <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Раунд 5</th>
+                        <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Раунд 6</th>
+                        <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Раунд 7</th>
+                        <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Итого</th>
+                        <th className="px-4 py-3 bg-[#D4A373] text-white text-center text-lg font-semibold">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {scores.map((score, index) => (
+                        <tr
+                            key={score.id}
+                            className={`${
+                                index % 2 === 0 ? 'bg-white' : 'bg-[#FFF5E1]'
+                            } hover:bg-gray-200 transition-colors duration-200`}
+                        >
+                            <td className="border px-4 py-3 text-center">{score.teamName}</td>
+                            <td className="border px-4 py-3 text-center">{score.round1}</td>
+                            <td className="border px-4 py-3 text-center">{score.round2}</td>
+                            <td className="border px-4 py-3 text-center">{score.round3}</td>
+                            <td className="border px-4 py-3 text-center">{score.round4}</td>
+                            <td className="border px-4 py-3 text-center">{score.round5}</td>
+                            <td className="border px-4 py-3 text-center">{score.round6}</td>
+                            <td className="border px-4 py-3 text-center">{score.round7}</td>
+                            <td className="border px-4 py-3 text-center">{score.total}</td>
+                            <td className="border px-4 py-3 text-center">
+                                <button
+                                    className="bg-[#D4A373] text-white px-3 py-1 rounded hover:bg-[#c99b6d] transition-colors duration-200"
+                                    onClick={() => openEditModal(score)}
+                                >
+                                    Редактировать
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            {/* Модальное окно для редактирования очков */}
+            {isModalOpen && currentScore && (
+                <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                    <div className="m-20  mx-[200px] w-[300px]">
+                    <h2 className="text-2xl font-bold mb-4 text-center">Редактирование очков</h2>
+                    <form className="flex flex-col space-y-4">
+                        <div className="flex flex-col">
+                            <label htmlFor="round1" className="mb-1">Раунд 1</label>
+                            <input
+                                id="round1"
+                                type="number"
+                                value={currentScore.round1}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round1: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round2" className="mb-1">Раунд 2</label>
+                            <input
+                                id="round2"
+                                type="number"
+                                value={currentScore.round2}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round2: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round3" className="mb-1">Раунд 3</label>
+                            <input
+                                id="round3"
+                                type="number"
+                                value={currentScore.round3}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round3: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round4" className="mb-1">Раунд 4</label>
+                            <input
+                                id="round4"
+                                type="number"
+                                value={currentScore.round4}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round4: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round5" className="mb-1">Раунд 5</label>
+                            <input
+                                id="round5"
+                                type="number"
+                                value={currentScore.round5}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round5: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round6" className="mb-1">Раунд 6</label>
+                            <input
+                                id="round6"
+                                type="number"
+                                value={currentScore.round6}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round6: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="round7" className="mb-1">Раунд 7</label>
+                            <input
+                                id="round7"
+                                type="number"
+                                value={currentScore.round7}
+                                onChange={(e) => setCurrentScore({ ...currentScore, round7: Number(e.target.value) })}
+                                className="p-2 rounded border"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="total" className="mb-1">Итого</label>
+                            <input
+                                id="total"
+                                type="number"
+                                value={currentScore.total}
+                                onChange={(e) => setCurrentScore({ ...currentScore, total: Number(e.target.value) })}
+                                className="p-2 rounded border bg-gray-100"
+                                disabled
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            className="bg-[#D4A373] text-white py-2 px-4 rounded hover:bg-[#c99b6d] transition-colors duration-200"
+                            onClick={handleSave}
+                        >
+                            Сохранить
+                        </button>
+                    </form>
+                    </div>
+                </Modal>
+            )}
+        </div>
+    );
+};
+
+export default ScoreCountingTab;
+
+
+File: TeamResultTable.tsx
+"use client";
+import React from 'react';
+
+interface Team {
+    name: string;
+    round1: number;
+    round2: number;
+    round3: number;
+    round4: number;
+    round5: number;
+    round6: number;
+    round7: number;
+    place: number;
+    total: number;
+}
+
+const testData: Team[] = [
+    { name: 'Команда А', round1: 10, round2: 15, round3: 20, round4: 25, round5: 30, round6: 35, round7: 40, place: 1, total: 175 },
+    { name: 'Команда Б', round1: 9, round2: 14, round3: 19, round4: 24, round5: 29, round6: 34, round7: 39, place: 2, total: 168 },
+    { name: 'Команда В', round1: 8, round2: 13, round3: 18, round4: 23, round5: 28, round6: 33, round7: 38, place: 3, total: 161 },
+    { name: 'Команда Г', round1: 7, round2: 12, round3: 17, round4: 22, round5: 27, round6: 32, round7: 37, place: 4, total: 154 },
+    { name: 'Команда Д', round1: 6, round2: 11, round3: 16, round4: 21, round5: 26, round6: 31, round7: 36, place: 5, total: 147 },
+    { name: 'Команда Е', round1: 5, round2: 10, round3: 15, round4: 20, round5: 25, round6: 30, round7: 35, place: 6, total: 140 },
+    { name: 'Команда Ж', round1: 4, round2: 9, round3: 14, round4: 19, round5: 24, round6: 29, round7: 34, place: 7, total: 133 },
+    { name: 'Команда З', round1: 3, round2: 8, round3: 13, round4: 18, round5: 23, round6: 28, round7: 33, place: 8, total: 126 },
+    { name: 'Команда И', round1: 2, round2: 7, round3: 12, round4: 17, round5: 22, round6: 27, round7: 32, place: 9, total: 119 },
+    { name: 'Команда К', round1: 1, round2: 6, round3: 11, round4: 16, round5: 21, round6: 26, round7: 31, place: 10, total: 112 },
+];
+
+const TeamResultTable: React.FC = () => {
+    return (
+        <div className="w-[88%] mx-auto bg-[#CC9F33] rounded-[20px] overflow-hidden mt-2 mb-5">
+            <table className="min-w-full text-black">
+                <thead>
+                    <tr className='h-[76px] font-light'>
+                        {/* Новая колонка "Место" */}
+                        <th className="px-4 pl-8 py-3 text-white text-[26px] font-light text-left border-r border-gray-300">Место</th>
+                        <th className="px-4 pl-8 py-3 text-white text-[26px] font-light text-left border-r border-gray-300">Команда</th>
+                        <th className="px-4 pl-8 py-3 text-white text-[26px] font-light text-left border-r border-gray-300">Итого</th>
+                        <th className="px-4 pl-8 py-3 text-white text-[26px] font-light text-left border-r border-gray-300">Раунд 1</th>
+                        <th className="px-4 pl-8 py-3 text-white text-[26px] font-light text-left border-r border-gray-300">Раунд 2</th>
+                        <th className="px-4 pl-8 py-3 text-white text-[26px] font-light text-left border-r border-gray-300">Раунд 3</th>
+                        <th className="px-4 pl-8 py-3 text-white text-[26px] font-light text-left border-r border-gray-300">Раунд 4</th>
+                        <th className="px-4 pl-8 py-3 text-white text-[26px] font-light text-left border-r border-gray-300">Раунд 5</th>
+                        <th className="px-4 pl-8 py-3 text-white text-[26px] font-light text-left border-r border-gray-300">Раунд 6</th>
+                        <th className="px-4 pl-8 py-3 text-white text-[26px] font-light text-left border-r border-gray-300">Раунд 7</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {testData.map((team, index) => (
+                        <tr
+                            key={index}
+                            className={`${
+                                index % 2 === 0 ? 'bg-white' : 'bg-[#FFF5E1]'
+                            } hover:bg-gray-200 transition-colors duration-200 font-regular text-[26px] `}
+                        >
+                            {/* Новая ячейка "Место" */}
+                            <td className="border px-4 py-3 pl-8 w-[75px]">{index + 1}</td>
+                            <td className="border px-4 py-3 pl-8 w-[340px]">{team.name}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.total}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round1}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round2}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round3}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round4}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round5}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round6}</td>
+                            <td className="border px-4 py-3 pl-8 h-[75px] text-left">{team.round7}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+};
+
+export default TeamResultTable;
+
+
+Файл не найден: ./components/TeamRatingTable.tsx
+
+Файл не найден: ./components/UsersTable.tsx
+

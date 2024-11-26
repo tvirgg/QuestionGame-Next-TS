@@ -9,12 +9,18 @@ import ScoreCountingTab from './ScoreCountingTab';
 import PaymentsTab from './PaymentsTab';
 import LotteryTab from './LotteryTab';
 import PlayersTab from './Users';
+import UsersAccounts from './UsersAccounts';
+import GamesTab from './Games';
 
 const AdminMain: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string>('Создание игры');
 
     const renderTabContent = () => {
         switch(activeTab) {
+            case 'Игры':
+                return <GamesTab  />;
+            case 'Юзеры':
+                    return <UsersAccounts />;
             case 'Создание игры':
                 return <CreateGame />;
             case 'Создание места проведения':
@@ -40,7 +46,7 @@ const AdminMain: React.FC = () => {
         <div className="w-screen h-screen bg-[#14213D] text-white flex flex-col items-center p-4">
             <h1 className="text-4xl font-bold mt-8 mb-6 text-center">Интерфейс Администратора</h1>
             <div className="tabs flex space-x-4 mb-6">
-                {['Создание игры', 'Создание места проведения', 'Команды', 'Роли', 'Игроки', 'Подсчёт очков', 'Оплаты', 'Лотерея'].map((tab) => (
+                {['Юзеры', 'Игры', 'Создание игры', 'Создание места проведения', 'Команды', 'Роли', 'Игроки', 'Подсчёт очков', 'Оплаты', 'Лотерея'].map((tab) => (
                     <button
                         key={tab}
                         className={`px-4 py-2 rounded ${
